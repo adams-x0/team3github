@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import '../login.css';
 
 
 const Login = () => {
+  const [role, setRole] = useState("student_parent"); // Default role
   return (
     <div className="modal-container">
       {/* Modal Box */}
@@ -22,6 +23,24 @@ const Login = () => {
             <label>Password</label>
             <input type="password" placeholder="Enter Password" required />
           </div>
+          
+          {/* Role Dropdown */}
+          <div className="input-group">
+            <label>Role</label>
+            <select value={role} onChange={(e) => setRole(e.target.value)} required>
+              <option value="student">Student</option>
+              <option value="parent">Parent</option>
+              <option value="therapist_tutor">Therapist</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div> 
+
+          
+          {/* Forgot Password Link */}
+          <div className="forgot-password">
+            <a href="/forgot-password">Forgot Password?</a>
+          </div>
+
 
           {/* Login Button */}
           <button type="submit" className="login-btn">
