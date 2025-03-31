@@ -1,0 +1,50 @@
+.date-of-birth-container {
+  display: flex;
+  gap: 15px; /* Adds space between fields */
+  align-items: center; /* Ensures vertical alignment */
+  justify-content: flex-start;
+}
+
+.modal-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.4); /* Dim background */
+  }
+
+.field {
+  display: flex;
+  flex-direction: column;
+  width: 33%; /* Ensures equal width */
+  min-width: 100px;
+}
+
+.field select, 
+.field input[type="number"] {
+  width: 100%; /* Ensures uniform width */
+  height: 40px; /* Forces equal height */
+  padding: 5px;
+  box-sizing: border-box;
+  font-size: 16px;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+
+#id_date_of_birth_month {
+  height: 40px; /* Match the height of input fields */
+  width: 100%; /* Ensure uniform width */
+  padding: 5px;
+  margin-bottom: 12px;
+  font-size: 16px;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  vertical-align: middle; /* Aligns with day and year */
+  appearance: none; /* Removes default dropdown styles */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}

@@ -1,9 +1,12 @@
 import React, { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import '../login.css';
 
 
 const Login = () => {
   const [role, setRole] = useState("student_parent"); // Default role
+  const navigate = useNavigate();  // Create history instance
+
   return (
     <div className="modal-container">
       {/* Modal Box */}
@@ -52,7 +55,7 @@ const Login = () => {
         {/* Footer Section */}
         <div className="footer">
           {/* Register Button */}
-          <button type="submit" className="register-btn">
+          <button type="button" className="register-btn" onClick={() => navigate('/register')}>
             Register
           </button>
         </div>
