@@ -4,7 +4,6 @@ import '../login.css';
 
 
 const Login = () => {
-  const [role, setRole] = useState("student"); // Default role
   const navigate = useNavigate();  // Create history instance
 
   // Handle forgot password link click
@@ -31,17 +30,6 @@ const Login = () => {
             <label>Password</label>
             <input type="password" placeholder="Enter Password" required />
           </div>
-          
-          {/* Role Dropdown */}
-          <div className="input-group">
-            <label>Role</label>
-            <select value={role} onChange={(e) => setRole(e.target.value)} required>
-              <option value="student">Student</option>
-              <option value="parent">Parent</option>
-              <option value="therapist_tutor">Therapist</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div> 
 
           
           {/* Forgot Password Link */}

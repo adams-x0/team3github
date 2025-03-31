@@ -4,7 +4,7 @@ import '../register.css';
 import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
-    const [role, setRole] = useState("student"); // Default role
+    const [role, setRole] = useState(""); // State for role
     const [username, setUsername] = useState(""); // State for 
     const [password, setPassword] = useState(""); // State for password
     const [email, setEmail] = useState(""); // State for email
@@ -78,7 +78,6 @@ const Register = () => {
                             <option value="student">Student</option>
                             <option value="parent">Parent</option>
                             <option value="therapist_tutor">Therapist</option>
-                            <option value="admin">Admin</option>
                         </select>
                     </div>
                     
