@@ -14,7 +14,7 @@
     padding: 20px;
     border-radius: 10px;
     width: 350px;
-    text-align: center;
+    text-align: right;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   }
 
@@ -83,12 +83,21 @@
   .register-btn:hover {
     opacity: 0.8;
   }
-  
-  /* Footer (Cancel button + Forgot password link) */
-  .footer {
-    margin-top: 15px;
-    background: #f1f1f1;
-    padding: 10px;
-    border-radius: 5px;
+
+  .forgot-password-btn {
+    display: inline-block;
+    color: #007BFF; /* Bootstrap primary blue */
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 12px;
+    cursor: pointer;
+    text-decoration: underline;
+    margin-top: 10px;
   }
+  
+  .forgot-password-btn:hover {
+    color: #0056b3; /* Darker blue on hover */
+  }
+  
   

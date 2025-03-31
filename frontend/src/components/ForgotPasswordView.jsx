@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import '../login.css';
-import '../register.css';
 
 
 const ForgotPassword = () => {
@@ -30,8 +29,8 @@ const ForgotPassword = () => {
                 <form>
                     {/* ID */}
                     <div className="input-group">
-                        <label>Email address or username</label>
-                        <input type="text" value={id} onChange={handleIdChange} placeholder="Enter Username or Email" style={{ width: '100%', fontSize: '13px' }} required />
+                        <label>Username or email address</label>
+                        <input type="text" value={id} onChange={handleIdChange} placeholder="Enter Username or Email" style={{ width: '95%', fontSize: '13px' }} required />
                     </div>
 
                     {/* Submit Button */}
