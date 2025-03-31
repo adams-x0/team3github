@@ -3,14 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import './App.css'; 
 import LoginView from './components/LoginView';
 import RegisterView from './components/RegisterView';
-// function App() {
-
-//   // return (
-//   //   <div className="App">
-//   //     <LoginView></LoginView>
-//   //   </div>
-//   // );
-// }
+import ForgotPasswordView from './components/ForgotPasswordView';
 
 
 const App = () => {
@@ -18,6 +11,7 @@ const App = () => {
     <Router>
       <Routes>
         <Route path="/" element={<LoginView />} />
+        <Route path="/ForgotPassword" element={<ForgotPasswordView />} />
         <Route path="/register" element={<RegisterView />} />
       </Routes>
     </Router>

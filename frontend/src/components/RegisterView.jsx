@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import '../login.css';
 import '../register.css';
+import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
     const [role, setRole] = useState("student"); // Default role
@@ -15,6 +16,13 @@ const Register = () => {
     const [month, setMonth] = useState('');
     const [day, setDay] = useState('');
     const [year, setYear] = useState('');
+
+    const navigate = useNavigate(); // hook to navigate to previous page
+    
+    // Function to handle going back to the previous page
+    const handleCancel = () => {
+        navigate(-1); // Go back one step in the history
+    };
 
     // Handle changes for month, day, and year
     const handleMonthChange = (event) => {
@@ -63,8 +71,8 @@ const Register = () => {
 
                 {/* Registration Form */}
                 <form>
+                    {/* Role Dropdown */}
                     <div className="input-group">
-                        {/* Role Dropdown */}
                         <label>Role</label>
                         <select value={role} onChange={(e) => setRole(e.target.value)} required>
                             <option value="student">Student</option>
@@ -72,27 +80,35 @@ const Register = () => {
                             <option value="therapist_tutor">Therapist</option>
                             <option value="admin">Admin</option>
                         </select>
+                    </div>
+                    
 
-                        {/* First Name */}
+                    {/* First Name */}
+                    <div className="input-group">
                         <label>First Name</label>
                         <input aria-required="true" id="first_name" maxLength={256} name="first_name" type="text" placeholder="Enter First Name" value={firstName} onChange={handleFirstNameChange} required />
+                    </div>
 
-                        {/* Last Name */}
+                    {/* Last Name */}
+                    <div className="input-group">
                         <label>Last Name</label>
                         <input aria-required="true" id="last_name" maxLength={256} name="last_name" type="text" placeholder="Enter Last Name" value={lastName} onChange={handleLastNameChange} required />
+                    </div>
+                    
 
-                        {/* Username Input */}
-                        <div className="input-group">
-                            <label>Username</label>
-                            <input type="text" placeholder="Enter Username" 
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            required />
-                        </div>
+                    {/* Username Input */}
+                    <div className="input-group">
+                        <label>Username</label>
+                        <input type="text" placeholder="Enter Username" 
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        required />
+                    </div>
 
-                        {/* date of birth */}
+                    {/* date of birth */}
+                    <div className="input-group">
                         <label>Date of Birth</label>
-                        <fieldset className="input-group">
+                        <fieldset>
                             <div class="date-of-birth-container">
                                 <div id="id_date_of_birth_month ">
                                     <label for="id_date_of_birth_month">Month</label>
@@ -126,21 +142,36 @@ const Register = () => {
                             </div>
 
                         </fieldset>
+                    </div>
+                        
 
-                        {/* Email Input */}
+                    {/* Email Input */}
+                    <div className="input-group">
                         <label>Email address</label>
                         <input aria-required="true" id="email" maxLength={256} name="email" type="text" placeholder="Enter email address" value={email} onChange={handleEmailChange} required />
+                    </div>
+                    
 
-                        {/* Phone number */}
+                    {/* Phone number */}
+                    <div className="input-group">
                         <label>Phone number</label>
                         <input aria-required="true" id="phone_numberA" maxlength="10" name="phone_number" type="number" value={phone} onChange={handlePhoneChange} required />
-
-                        {/* Next */}
-                        <button type="submit" className="login-btn">
+                    </div>
+                    
+                    {/* Next */}
+                    <div className="input-group">
+                        <button type="button" className="login-btn">
                             Next
                         </button>
-
                     </div>
+
+                    {/* Cancel Button */}
+                    <div className="input-group">
+                        <button type="button" className="cancel-btn" onClick={handleCancel}>
+                            Cancel
+                        </button>
+                    </div>
+                    
                 </form>
             </div>
             

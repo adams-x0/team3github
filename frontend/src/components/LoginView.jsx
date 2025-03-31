@@ -4,8 +4,13 @@ import '../login.css';
 
 
 const Login = () => {
-  const [role, setRole] = useState("student_parent"); // Default role
+  const [role, setRole] = useState("student"); // Default role
   const navigate = useNavigate();  // Create history instance
+
+  // Handle forgot password link click
+  const handleForgotPassword = () => {
+    navigate('/ForgotPassword'); // Use navigate to go to forgot-password page
+  };
 
   return (
     <div className="modal-container">
@@ -41,7 +46,9 @@ const Login = () => {
           
           {/* Forgot Password Link */}
           <div className="forgot-password">
-            <a href="/forgot-password">Forgot Password?</a>
+            <button type="button" className="forgot-password-btn" onClick={handleForgotPassword}>
+              Forgot Password?
+            </button>
           </div>
 
 
@@ -53,7 +60,7 @@ const Login = () => {
         </form>
 
         {/* Footer Section */}
-        <div className="footer">
+        <div className="">
           {/* Register Button */}
           <button type="button" className="register-btn" onClick={() => navigate('/register')}>
             Register
