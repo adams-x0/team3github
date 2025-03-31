@@ -1,3 +1,4 @@
 web-vitals
 axios
 react-router-dom
+zxcvbn

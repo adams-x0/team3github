@@ -21,6 +21,10 @@
   min-width: 100px;
 }
 
+.field-month {
+  margin-bottom: 12px;
+}
+
 .field select, 
 .field input[type="number"] {
   width: 100%; /* Ensures uniform width */
@@ -48,3 +52,103 @@
   -webkit-appearance: none;
   -moz-appearance: none;
 }
+
+/* Add styles for password strength indicator */
+.password-strength {
+    margin-top: 10px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* Styles for password strength label */
+.password-strength p {
+    padding: 5px;
+    border-radius: 5px;
+    color: white;
+    text-align: center;
+}
+
+/* Color coding the strength levels */
+.password-strength.very-weak {
+    background-color: #ff4d4d; /* Red */
+}
+
+.password-strength.weak {
+    background-color: #ff9f00; /* Orange */
+}
+
+.password-strength.fair {
+    background-color: #ffeb3b; /* Yellow */
+}
+
+.password-strength.strong {
+    background-color: #4caf50; /* Green */
+}
+
+.password-strength.very-strong {
+    background-color: #2e7d32; /* Dark Green */
+}
+
+.password-match-error {
+    color: red; /* Red color for error */
+    font-size: 14px; /* Slightly larger font size for visibility */
+    margin-top: 10px; /* Spacing above the error message */
+    font-weight: bold; /* Make the message bold */
+    text-align: left; /* Align text to the left */
+}
+
+/* Style the radio input group */
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Style the radio labels */
+.input-group label {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    cursor: pointer;
+    gap: 8px;
+}
+
+/* Hide default radio button */
+.input-group input[type="radio"] {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #007bff;
+    border-radius: 50%;
+    outline: none;
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+    transition: 0.2s all ease-in-out;
+}
+
+/* Create a custom checked radio button */
+.input-group input[type="radio"]:checked {
+    background-color: #007bff;
+    border-color: #0056b3;
+}
+
+/* Add a check indicator */
+.input-group input[type="radio"]::after {
+    content: "";
+    width: 10px;
+    height: 10px;
+    background-color: white;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    display: none;
+}
+
+/* Show the indicator when checked */
+.input-group input[type="radio"]:checked::after {
+    display: block;
+}
+
