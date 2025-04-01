@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import '../login.css';
 import '../register.css';
 import { useNavigate } from 'react-router-dom';
 import zxcvbn from "zxcvbn"; // Import zxcvbn for password strength checking
