@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from 'react-router-dom';
 import '../login.css';
 
@@ -50,7 +50,7 @@ const Login = () => {
         {/* Footer Section */}
         <div className="">
           {/* Register Button */}
-          <button type="button" className="register-btn" onClick={() => navigate('/register')}>
+          <button type="button" className="login-btn" onClick={() => navigate('/register')}>
             Register
           </button>
         </div>

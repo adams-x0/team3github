@@ -3,9 +3,24 @@
   gap: 15px; /* Adds space between fields */
   align-items: center; /* Ensures vertical alignment */
   justify-content: flex-start;
+  width: 100%;
 }
 
-.modal-container {
+.register-btn {
+  width: 683px;
+    background: #04AA6D;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+.register-btn:hover{
+  opacity: 0.8;
+}
+
+.register-modal-container {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -13,6 +28,54 @@
     width: 100%;
     background: rgba(0, 0, 0, 0.4); /* Dim background */
   }
+
+/* Centered modal box */
+.register-modal-box {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 700px;
+  text-align: left;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.register-input-group {
+  display: flex;
+  gap: 5px; /* Adjust spacing between fields */
+  margin-bottom: 15px
+}
+
+.register-input {
+  flex: 1;
+}
+
+.register-input label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.register-input input {
+  width: 90%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.register-input select {
+  color: #757575 !important; /* Light gray font */
+  appearance: none; /* Removes default browser styling */
+  background-color: rgb(255, 255, 255); /* Matches input field */
+  border: 1px solid #ccc; /* Consistent border */
+  border-radius: 5px; /* Rounded corners */
+  font-family: Arial, sans-serif; /* Ensures consistent font */
+  font-size: 13.3333px; /* Matches input field */
+  height: 33.5px; /* Matches the input's height */
+  padding: 8px; /* Ensures spacing matches */
+  width: 330.75px; /* Matches the input width */
+}
+
+
 
 .field {
   display: flex;
@@ -35,22 +98,6 @@
   text-align: center;
   border: 1px solid #ccc;
   border-radius: 5px;
-}
-
-
-#id_date_of_birth_month {
-  height: 40px; /* Match the height of input fields */
-  width: 100%; /* Ensure uniform width */
-  padding: 5px;
-  margin-bottom: 12px;
-  font-size: 16px;
-  text-align: center;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  vertical-align: middle; /* Aligns with day and year */
-  appearance: none; /* Removes default dropdown styles */
-  -webkit-appearance: none;
-  -moz-appearance: none;
 }
 
 /* Add styles for password strength indicator */
@@ -95,60 +142,5 @@
     margin-top: 10px; /* Spacing above the error message */
     font-weight: bold; /* Make the message bold */
     text-align: left; /* Align text to the left */
-}
-
-/* Style the radio input group */
-.input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-/* Style the radio labels */
-.input-group label {
-    display: flex;
-    align-items: center;
-    font-size: 16px;
-    cursor: pointer;
-    gap: 8px;
-}
-
-/* Hide default radio button */
-.input-group input[type="radio"] {
-    appearance: none;
-    width: 18px;
-    height: 18px;
-    border: 2px solid #007bff;
-    border-radius: 50%;
-    outline: none;
-    display: inline-block;
-    position: relative;
-    cursor: pointer;
-    transition: 0.2s all ease-in-out;
-}
-
-/* Create a custom checked radio button */
-.input-group input[type="radio"]:checked {
-    background-color: #007bff;
-    border-color: #0056b3;
-}
-
-/* Add a check indicator */
-.input-group input[type="radio"]::after {
-    content: "";
-    width: 10px;
-    height: 10px;
-    background-color: white;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    border-radius: 50%;
-    display: none;
-}
-
-/* Show the indicator when checked */
-.input-group input[type="radio"]:checked::after {
-    display: block;
 }
 
