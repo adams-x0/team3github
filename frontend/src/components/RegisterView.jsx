@@ -11,7 +11,6 @@ const Register = () => {
         lastName: "",
         email: "",
         phone: "",
-        username: "",
         role: "",
         password: "",
         confirmPassword: "",
@@ -136,7 +135,7 @@ const Register = () => {
                         </div>
                     </div>
                     
-                    {/* Username & Email Input */}
+                    {/* Email & Phone Number Input */}
                     <div className="register-input-group">
                         <div className="register-input">
                             <label>Email address</label>
@@ -148,7 +147,7 @@ const Register = () => {
                         </div>
                     </div>       
 
-                    {/* Phone number & Address */}
+                    {/* Address & Role input */}
                     <div className="register-input-group">
                         <div className="register-input">
                             <label>Address</label>
@@ -165,7 +164,7 @@ const Register = () => {
                         </div>
                     </div>
 
-                    {/* date of birth */}
+                    {/* Date of birth */}
                     <div className="input-group">
                         <label>Date of Birth</label>
                         <fieldset style={{width: '665px', padding: '8px', border: '1px solid #ccc', borderRadius: '5px'}}>
