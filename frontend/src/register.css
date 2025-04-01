@@ -144,3 +144,36 @@
     text-align: left; /* Align text to the left */
 }
 
+.header {
+  text-align: center;
+  background-color: #f8f8f8;
+  padding: 10px;
+  border-bottom: 2px solid #ddd;
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  font-size: 20px;
+  color: #3a3a3a;
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+}
+
+/* Input fields */
+.input-group {
+  text-align: left;
+  margin-bottom: 12px;
+}
+
+.input-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.input-group input {
+  width: 95%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
