@@ -22,8 +22,8 @@ const Login = () => {
         {/* Form */}
         <form>
           <div className="input-group">
-            <label>Username</label>
-            <input type="text" placeholder="Enter Username" required />
+            <label>Email</label>
+            <input type="text" placeholder="Enter email address" required />
           </div>
 
           <div className="input-group">

@@ -15,19 +15,12 @@ const Register = () => {
         role: "",
         password: "",
         confirmPassword: "",
+        address: "",
         studentFields: {
             dobMonth: "",
             dobDay: "",
             dobYear: "",
-            address: ""
-
         }, // For student-specific fields
-        guardianFields: {
-            relation: ""
-        }, // For parent-specific fields
-        therapist_tutorFields: {
-            therapistOrTutor: "therapist",
-        } // For therapist/tutor-specific fields
     })
 
     const [passwordStrength, setPasswordStrength] = useState(0); // State to hold password strength
@@ -106,19 +99,7 @@ const Register = () => {
                 ...formData,
                 studentFields: { ...formData.studentFields, [name]: value }
             })
-        } else if (formData.role === "guardian" && name in formData.guardianFields) {
-            // Update role-specific fields
-            setFormData({
-                ...formData,
-                guardianFields: { ...formData.guardianFields, [name]: value }
-            })
-        } else if (formData.role === "therapist_tutor" && name in formData.therapist_tutorFields) {
-            // Update role-specific fields
-            setFormData({
-                ...formData,
-                therapist_tutorFields: { ...formData.therapist_tutorFields, [name]: value }
-            })
-        }
+        } 
     }
 
     // Handle next button click
