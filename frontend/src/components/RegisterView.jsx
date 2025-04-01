@@ -15,7 +15,7 @@ const Register = () => {
         password: "",
         confirmPassword: "",
         address: "",
-        studentFields: {
+        dateFields: {
             dobMonth: "",
             dobDay: "",
             dobYear: "",
@@ -92,11 +92,10 @@ const Register = () => {
         if (name in formData) {
             // Update general fields
             setFormData({ ...formData, [name]: value });
-        } else if (formData.role === "student" && name in formData.studentFields) {
-            // Update role-specific fields
+        } else if (name in formData.dateFields) {
             setFormData({
                 ...formData,
-                studentFields: { ...formData.studentFields, [name]: value }
+                dateFields: { ...formData.dateFields, [name]: value }
             })
         } 
     }
@@ -151,7 +150,7 @@ const Register = () => {
                     <div className="register-input-group">
                         <div className="register-input">
                             <label>Address</label>
-                            <input aria-required="true" id="address" maxLength={256} name="address" type="text" placeholder="Enter your address" onChange={handleInputChange} value={formData.studentFields.address} required />
+                            <input aria-required="true" id="address" maxLength={256} name="address" type="text" placeholder="Enter your address" onChange={handleInputChange} value={formData.dateFields.address} required />
                         </div>
                         <div className="register-input">
                             <label>Role</label>
@@ -171,7 +170,7 @@ const Register = () => {
                             <div class="date-of-birth-container">
                                 <div className="field field-month">
                                     <label for="dobMonth">Month</label>
-                                    <select id="dobMonth" name="dobMonth" value={formData.studentFields.dobMonth} onChange={handleInputChange} required>
+                                    <select id="dobMonth" name="dobMonth" value={formData.dateFields.dobMonth} onChange={handleInputChange} required>
                                         <option value="0">Select</option>
                                         <option value="1">January</option>
                                         <option value="2">February</option>
@@ -191,12 +190,12 @@ const Register = () => {
                                 <div class="field field-day">
                                     <label for="dobDay">Day</label>
                                     <input aria-required="true" class="input-group" name= "dobDay"  id="dobDay" max="5" maxlength="2"
-                                    min="1" type="number" value={formData.studentFields.dobDay} onChange={handleInputChange} required />
+                                    min="1" type="number" value={formData.dateFields.dobDay} onChange={handleInputChange} required />
                                 </div>
 
                                 <div class="field field-year">
                                     <label for="dobYear">Year</label>
-                                    <input aria-required="true" class="input-group" id="dobYear" max="9999" maxlength="4" min="1890" name="dobYear" type="number" value={formData.studentFields.dobYear} onChange={handleInputChange} required />
+                                    <input aria-required="true" class="input-group" id="dobYear" max="9999" maxlength="4" min="1890" name="dobYear" type="number" value={formData.dateFields.dobYear} onChange={handleInputChange} required />
                                 </div>
                             </div>
 
