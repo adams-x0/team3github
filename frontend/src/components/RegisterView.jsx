@@ -11,16 +11,15 @@ const Register = () => {
         lastName: "",
         email: "",
         phone: "",
-        username: "",
         role: "",
         password: "",
         confirmPassword: "",
         address: "",
-        studentFields: {
+        dateFields: {
             dobMonth: "",
             dobDay: "",
             dobYear: "",
-        }, // For student-specific fields
+        },
     })
 
     const [passwordStrength, setPasswordStrength] = useState(0); // State to hold password strength
@@ -35,9 +34,9 @@ const Register = () => {
         const userInputs = [
             formData.firstName,
             formData.lastName,
-            formData.username,
             formData.email,
             formData.phone,
+            formData.address
         ]
 
         // Evaluate password strength
@@ -93,17 +92,18 @@ const Register = () => {
         if (name in formData) {
             // Update general fields
             setFormData({ ...formData, [name]: value });
-        } else if (formData.role === "student" && name in formData.studentFields) {
+        } else if (formData.role === "student" && name in formData.dateFields) {
             // Update role-specific fields
             setFormData({
                 ...formData,
-                studentFields: { ...formData.studentFields, [name]: value }
+                dateFields: { ...formData.dateFields, [name]: value }
             })
         } 
     }
 
     // Handle next button click
     const handleNext = () => { 
+        // To dashboard Usage
         console.log(formData); // Log form data to console
     }
 
@@ -136,7 +136,7 @@ const Register = () => {
                         </div>
                     </div>
                     
-                    {/* Username & Email Input */}
+                    {/* Email & Phone number Input */}
                     <div className="register-input-group">
                         <div className="register-input">
                             <label>Email address</label>
@@ -148,11 +148,11 @@ const Register = () => {
                         </div>
                     </div>       
 
-                    {/* Phone number & Address */}
+                    {/* Address & Role */}
                     <div className="register-input-group">
                         <div className="register-input">
                             <label>Address</label>
-                            <input aria-required="true" id="address" maxLength={256} name="address" type="text" placeholder="Enter your address" onChange={handleInputChange} value={formData.studentFields.address} required />
+                            <input aria-required="true" id="address" maxLength={256} name="address" type="text" placeholder="Enter your address" onChange={handleInputChange} value={formData.dateFields.address} required />
                         </div>
                         <div className="register-input">
                             <label>Role</label>
@@ -165,14 +165,14 @@ const Register = () => {
                         </div>
                     </div>
 
-                    {/* date of birth */}
+                    {/* Date of birth */}
                     <div className="input-group">
                         <label>Date of Birth</label>
                         <fieldset style={{width: '665px', padding: '8px', border: '1px solid #ccc', borderRadius: '5px'}}>
                             <div class="date-of-birth-container">
                                 <div className="field field-month">
                                     <label for="dobMonth">Month</label>
-                                    <select id="dobMonth" name="dobMonth" value={formData.studentFields.dobMonth} onChange={handleInputChange} required>
+                                    <select id="dobMonth" name="dobMonth" value={formData.dateFields.dobMonth} onChange={handleInputChange} required>
                                         <option value="0">Select</option>
                                         <option value="1">January</option>
                                         <option value="2">February</option>
@@ -192,12 +192,12 @@ const Register = () => {
                                 <div class="field field-day">
                                     <label for="dobDay">Day</label>
                                     <input aria-required="true" class="input-group" name= "dobDay"  id="dobDay" max="5" maxlength="2"
-                                    min="1" type="number" value={formData.studentFields.dobDay} onChange={handleInputChange} required />
+                                    min="1" type="number" value={formData.dateFields.dobDay} onChange={handleInputChange} required />
                                 </div>
 
                                 <div class="field field-year">
                                     <label for="dobYear">Year</label>
-                                    <input aria-required="true" class="input-group" id="dobYear" max="9999" maxlength="4" min="1890" name="dobYear" type="number" value={formData.studentFields.dobYear} onChange={handleInputChange} required />
+                                    <input aria-required="true" class="input-group" id="dobYear" max="9999" maxlength="4" min="1890" name="dobYear" type="number" value={formData.dateFields.dobYear} onChange={handleInputChange} required />
                                 </div>
                             </div>
 
@@ -232,7 +232,7 @@ const Register = () => {
 
                     
                     
-                    {/* Next */}
+                    {/* Next Button */}
                     <div className="input-group">
                         <button type="button" className="register-btn" onClick={handleNext}>
                             Next
