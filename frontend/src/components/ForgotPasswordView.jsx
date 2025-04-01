@@ -29,8 +29,8 @@ const ForgotPassword = () => {
                 <form>
                     {/* ID */}
                     <div className="input-group">
-                        <label>Username or email address</label>
-                        <input type="text" value={id} onChange={handleIdChange} placeholder="Enter Username or Email" style={{ width: '95%', fontSize: '13px' }} required />
+                        <label>email address</label>
+                        <input type="text" value={id} onChange={handleIdChange} placeholder="Enter email address" style={{ width: '95%', fontSize: '13px' }} required />
                     </div>
 
                     {/* Submit Button */}

@@ -11,7 +11,6 @@ const Register = () => {
         lastName: "",
         email: "",
         phone: "",
-        username: "",
         role: "student",
         password: "",
         confirmPassword: "",
@@ -145,16 +144,6 @@ const Register = () => {
                     <div className="input-group">
                         <label>Last name</label>
                         <input aria-required="true" id="lastName" maxLength={256} name="lastName" type="text" placeholder="Enter Last Name" value={formData.lastName} onChange={handleInputChange} required />
-                    </div>
-                    
-
-                    {/* Username Input */}
-                    <div className="input-group">
-                        <label>Username</label>
-                        <input name="username" type="text" placeholder="Enter Username" 
-                        value={formData.username}
-                        onChange={handleInputChange}
-                        required />
                     </div>
                         
 
