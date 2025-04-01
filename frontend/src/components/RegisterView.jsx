@@ -11,7 +11,8 @@ const Register = () => {
         lastName: "",
         email: "",
         phone: "",
-        role: "student",
+        username: "",
+        role: "",
         password: "",
         confirmPassword: "",
         address: "",
@@ -115,101 +116,93 @@ const Register = () => {
 
 
     return (
-        <div className="modal-container">
-            <div className="modal-box">
+        <div className="register-modal-container">
+            <div className="register-modal-box">
                 <header className="header">
                     <h1>Sign Up</h1>
                 </header>
 
                 {/* Registration Form */}
                 <form>
-                    {/* Role Dropdown */}
-                    <div className="input-group">
-                        <label>Role</label>
-                        <select name="role" value={formData.role} onChange={handleInputChange} required>
-                            <option value="student">Student</option>
-                            <option value="guardian">Guardian</option>
-                            <option value="therapist_tutor">Therapist/Tutor</option>
-                        </select>
+                    {/* First & Last Name */}
+                    <div className="register-input-group">
+                        <div className="register-input">
+                            <label>First name</label>
+                            <input aria-required="true" id="firstName" maxLength={256} name="firstName" type="text" placeholder="Enter first name" value={formData.firstName} onChange={handleInputChange} required />
+                        </div>
+                        <div className="register-input">
+                            <label>Last name</label>
+                            <input aria-required="true" id="lastName" maxLength={256} name="lastName" type="text" placeholder="Enter last name" value={formData.lastName} onChange={handleInputChange} required />
+                        </div>
                     </div>
                     
+                    {/* Username & Email Input */}
+                    <div className="register-input-group">
+                        <div className="register-input">
+                            <label>Email address</label>
+                            <input aria-required="true" id="email" maxLength={256} name="email" type="text" placeholder="Enter email address" value={formData.email} onChange={handleInputChange} required />
+                        </div>
+                        <div className="register-input">
+                            <label>Phone number</label>
+                            <input aria-required="true" id="phone" maxlength="10" name="phone" type="text" placeholder="Enter your phone number" value={formData.phone} onChange={handleInputChange} required />
+                        </div>
+                    </div>       
 
-                    {/* First Name */}
-                    <div className="input-group">
-                        <label>First name</label>
-                        <input aria-required="true" id="firstName" maxLength={256} name="firstName" type="text" placeholder="Enter First Name" value={formData.firstName} onChange={handleInputChange} required />
+                    {/* Phone number & Address */}
+                    <div className="register-input-group">
+                        <div className="register-input">
+                            <label>Address</label>
+                            <input aria-required="true" id="address" maxLength={256} name="address" type="text" placeholder="Enter your address" onChange={handleInputChange} value={formData.studentFields.address} required />
+                        </div>
+                        <div className="register-input">
+                            <label>Role</label>
+                            <select name="role" value={formData.role} onChange={handleInputChange} required>
+                                <option value="" disabled selected>Enter your role</option>
+                                <option value="student">Student</option>
+                                <option value="guardian">Guardian</option>
+                                <option value="therapist_tutor">Therapist/Tutor</option>
+                            </select>
+                        </div>
                     </div>
 
-                    {/* Last Name */}
+                    {/* date of birth */}
                     <div className="input-group">
-                        <label>Last name</label>
-                        <input aria-required="true" id="lastName" maxLength={256} name="lastName" type="text" placeholder="Enter Last Name" value={formData.lastName} onChange={handleInputChange} required />
-                    </div>
-                        
+                        <label>Date of Birth</label>
+                        <fieldset style={{width: '665px', padding: '8px', border: '1px solid #ccc', borderRadius: '5px'}}>
+                            <div class="date-of-birth-container">
+                                <div className="field field-month">
+                                    <label for="dobMonth">Month</label>
+                                    <select id="dobMonth" name="dobMonth" value={formData.studentFields.dobMonth} onChange={handleInputChange} required>
+                                        <option value="0">Select</option>
+                                        <option value="1">January</option>
+                                        <option value="2">February</option>
+                                        <option value="3">March</option>
+                                        <option value="4">April</option>
+                                        <option value="5">May</option>
+                                        <option value="6">June</option>
+                                        <option value="7">July</option>
+                                        <option value="8">August</option>
+                                        <option value="9">September</option>
+                                        <option value="10">October</option>
+                                        <option value="11">November</option>
+                                        <option value="12">December</option>
+                                    </select>
+                                </div>
 
-                    {/* Email Input */}
-                    <div className="input-group">
-                        <label>Email address</label>
-                        <input aria-required="true" id="email" maxLength={256} name="email" type="text" placeholder="Enter email address" value={formData.email} onChange={handleInputChange} required />
-                    </div>
-                    
+                                <div class="field field-day">
+                                    <label for="dobDay">Day</label>
+                                    <input aria-required="true" class="input-group" name= "dobDay"  id="dobDay" max="5" maxlength="2"
+                                    min="1" type="number" value={formData.studentFields.dobDay} onChange={handleInputChange} required />
+                                </div>
 
-                    {/* Phone number */}
-                    <div className="input-group">
-                        <label>Phone number</label>
-                        <input aria-required="true" id="phone" maxlength="10" name="phone" type="number" value={formData.phone} onChange={handleInputChange} required />
-                    </div>
-
-                    {/* Address */}
-                    <div className="input-group">
-                        <label>Address</label>
-                        <input aria-required="true" id="address" maxLength={256} name="address" type="text" placeholder="Enter your address" onChange={handleInputChange} value={formData.address} required />
-                    </div>
-
-                    {/* Role-Specific Fields Student */}
-                    {formData.role === "student" && (
-                        <>
-                            {/* date of birth */}
-                            <div className="input-group">
-                                <label>Date of Birth</label>
-                                <fieldset>
-                                    <div class="date-of-birth-container">
-                                        <div className="field field-month">
-                                            <label for="dobMonth">Month</label>
-                                            <select id="dobMonth" name="dobMonth" value={formData.studentFields.dobMonth} onChange={handleInputChange} required>
-                                                <option value="0">Select</option>
-                                                <option value="1">January</option>
-                                                <option value="2">February</option>
-                                                <option value="3">March</option>
-                                                <option value="4">April</option>
-                                                <option value="5">May</option>
-                                                <option value="6">June</option>
-                                                <option value="7">July</option>
-                                                <option value="8">August</option>
-                                                <option value="9">September</option>
-                                                <option value="10">October</option>
-                                                <option value="11">November</option>
-                                                <option value="12">December</option>
-                                            </select>
-                                        </div>
-
-                                        <div class="field field-day">
-                                            <label for="dobDay">Day</label>
-                                            <input aria-required="true" class="input-group" name= "dobDay"  id="dobDay" max="31" maxlength="2"
-                                            min="1" type="number" value={formData.studentFields.dobDay} onChange={handleInputChange} required />
-                                        </div>
-
-                                        <div class="field field-year">
-                                            <label for="dobYear">Year</label>
-                                            <input aria-required="true" class="input-group" id="dobYear" max="9999" maxlength="4" min="1890" name="dobYear" type="number" value={formData.studentFields.dobYear} onChange={handleInputChange} required />
-                                        </div>
-                                    </div>
-
-                                </fieldset>
+                                <div class="field field-year">
+                                    <label for="dobYear">Year</label>
+                                    <input aria-required="true" class="input-group" id="dobYear" max="9999" maxlength="4" min="1890" name="dobYear" type="number" value={formData.studentFields.dobYear} onChange={handleInputChange} required />
+                                </div>
                             </div>
-                        </>
-                    )}
 
+                        </fieldset>
+                    </div>
 
                     {/* Password Input */}
                     <div className="input-group">
@@ -241,7 +234,7 @@ const Register = () => {
                     
                     {/* Next */}
                     <div className="input-group">
-                        <button type="button" className="login-btn" onClick={handleNext}>
+                        <button type="button" className="register-btn" onClick={handleNext}>
                             Next
                         </button>
                     </div>
