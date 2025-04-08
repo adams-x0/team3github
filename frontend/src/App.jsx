@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import './App.css'; 
+import './css/App.css'; 
 import LoginView from './components/LoginView';
 import RegisterView from './components/RegisterView';
 import ForgotPasswordView from './components/ForgotPasswordView';
