@@ -1,11 +1,18 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import '../css/login.css';
+import {fetchAllUsers} from '../Slices/GetSlice.jsx'
 
 
 const Login = () => {
   const navigate = useNavigate();  // Create history instance
-
+  const [/*users, */setUsers] = useState([]);
+  useEffect(() => {
+    fetchAllUsers(setUsers)
+  }, [setUsers]);
+  /* 
+   If login credentials in users, go to dashboard (role specific dashboard)
+  */
   // Handle forgot password link click
   const handleForgotPassword = () => {
     navigate('/ForgotPassword'); // Use navigate to go to forgot-password page
