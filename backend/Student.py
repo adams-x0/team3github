@@ -9,6 +9,12 @@ class Student:
         self.email_address = email_address
         pass
 
+    def get_address(self):
+        return self.address
+    
+    def get_email_address(self):
+        return self.email_address
+
     def get_first_name(self):
         return self.first_name
     
@@ -18,17 +24,11 @@ class Student:
     def get_full_name(self):
         return self.first_name + " " + self.last_name
     
-    def get_date_of_birth(self):
-        return self.date_of_birth
-    
     def get_phone_number(self):
         return self.phone_number
     
-    def get_address(self):
-        return self.address
-    
     def get_password(self):
         return self.password
-
-    def get_email_address(self):
-        return self.email_address
+    
+    def get_date_of_birth(self):
+        return self.date_of_birth
