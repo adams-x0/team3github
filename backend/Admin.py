@@ -9,3 +9,5 @@ class Admin:
     
     def get_email_address(self):
         return self.email_address
+    
+    # No need for admin setters, since we input directly into database

@@ -36,3 +36,28 @@ class User:
     
     def get_date_of_birth(self):
         return self.date_of_birth
+    
+    # Setters
+    def set_first_name(self, first_name):
+        self.first_name = first_name
+
+    def set_last_name(self, last_name):
+        self.last_name = last_name
+
+    def set_date_of_birth(self, date_of_birth):
+        self.date_of_birth = date_of_birth
+
+    def set_phone_number(self, phone_number):
+        self.phone_number = phone_number
+
+    def set_address(self, address):
+        self.address = address
+
+    def set_password(self, password):
+        self.password = password
+
+    def set_email_address(self, email_address):
+        self.email_address = email_address
+
+    def set_role(self, role):
+        self.role = role
