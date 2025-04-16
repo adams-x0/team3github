@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import '../css/register.css'
 import { useNavigate } from 'react-router-dom';
+import {addUser} from '../Slices/SetSlice.jsx'
 import zxcvbn from "zxcvbn"; // Import zxcvbn for password strength checking
 
 const Register = () => {
@@ -100,7 +101,17 @@ const Register = () => {
     }
 
     // Handle next button click
-    const handleNext = () => { 
+    const handleNext = async () => { 
+        // Ensure passwords match
+        if (formData.password !== formData.confirmPassword) {
+            return;
+        }
+        try {
+            await addUser(formData);
+            alert("User registered successfully!");
+        } catch (error) {
+            console.error("Registration failed:", error);
+        }
         console.log(formData); // Log form data to console
     }
 
