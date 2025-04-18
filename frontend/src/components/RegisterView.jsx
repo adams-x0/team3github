@@ -19,7 +19,7 @@ const Register = () => {
             dobMonth: "",
             dobDay: "",
             dobYear: "",
-        }, // For student-specific fields
+        },
     })
 
     const [passwordStrength, setPasswordStrength] = useState(0); // State to hold password strength
@@ -168,7 +168,7 @@ const Register = () => {
                                 <option value="" disabled selected>Enter your role</option>
                                 <option value="student">Student</option>
                                 <option value="guardian">Guardian</option>
-                                <option value="therapist_tutor">Therapist/Tutor</option>
+                                <option value="therapist">Therapist</option>
                             </select>
                         </div>
                     </div>

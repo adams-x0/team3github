@@ -1,8 +1,7 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
-import bcrypt
-import mysql.connector
-
+from flask import Flask, request, jsonify  # type: ignore
+from flask_cors import CORS  # type: ignore
+import bcrypt  # type: ignore
+import mysql.connector  # type: ignore
 
 app = Flask(__name__)
 CORS(app)  # Allow frontend to make requests
@@ -21,6 +20,7 @@ def create_tables():
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
+
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS Users (
                 user_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -30,7 +30,8 @@ def create_tables():
                 last_name VARCHAR(100),
                 phone VARCHAR(20),
                 address TEXT,
-                role VARCHAR(50)
+                role VARCHAR(50),
+                dob DATE
             )
         """)
 
@@ -38,7 +39,6 @@ def create_tables():
             CREATE TABLE IF NOT EXISTS Students (
                 student_id INT AUTO_INCREMENT PRIMARY KEY,
                 user_id INT,
-                dob DATE,
                 FOREIGN KEY (user_id) REFERENCES Users(user_id)
             )
         """)
@@ -55,6 +55,9 @@ def create_tables():
             CREATE TABLE IF NOT EXISTS Therapists (
                 therapist_id INT AUTO_INCREMENT PRIMARY KEY,
                 user_id INT,
+                license_number VARCHAR(100),
+                specialization VARCHAR(255),
+                isVerified BOOLEAN DEFAULT FALSE,
                 FOREIGN KEY (user_id) REFERENCES Users(user_id)
             )
         """)
@@ -84,6 +87,21 @@ def add_user():
     role = data['role'].lower()
     phone = data.get('phone', '')
     address = data.get('address', '')
+    date_fields = data.get('dateFields', {})
+    license_number = data.get('licenseNumber', '') # Needs implementation on frontend
+    specialization = data.get('specialization', '') # ditto
+    is_verified = data.get('isVerified', False) #ditto 
+
+    # Format DOB
+    dob = None
+    try:
+        dob_month = int(date_fields.get('dobMonth', 0))
+        dob_day = int(date_fields.get('dobDay', 0))
+        dob_year = int(date_fields.get('dobYear', 0))
+        if dob_year and dob_month and dob_day:
+            dob = f"{dob_year:04d}-{dob_month:02d}-{dob_day:02d}"
+    except Exception:
+        pass  # leave dob as None if parsing fails
 
     # Hash the password
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
@@ -94,11 +112,20 @@ def add_user():
 
         # Insert the user
         cursor.execute("""
-            INSERT INTO Users (email, password, first_name, last_name, phone, address, role)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
-        """, (email, hashed_password, first_name, last_name, phone, address, role))
+            INSERT INTO Users (email, password, first_name, last_name, phone, address, role, dob)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""", (email, hashed_password, first_name, last_name, phone, address, role, dob))
 
         user_id = cursor.lastrowid
+
+        # Insert into role-specific table
+        if role == 'student':
+            cursor.execute("INSERT INTO Students (user_id) VALUES (%s)", (user_id,))
+        elif role == 'guardian':
+            cursor.execute("INSERT INTO Guardians (user_id) VALUES (%s)", (user_id,))
+        elif role == 'therapist':
+            cursor.execute("""
+            INSERT INTO Therapists (user_id, license_number, specialization, isVerified)
+            VALUES (%s, %s, %s, %s)""", (user_id, license_number, specialization, is_verified))
 
         conn.commit()
         cursor.close()
@@ -108,6 +135,7 @@ def add_user():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 # Entry point
 if __name__ == '__main__':
