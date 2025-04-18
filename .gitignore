@@ -1,3 +1,4 @@
-client/venv/
+client/
 venv/
 venvMac/
+node_modules/
