@@ -1,17 +1,17 @@
 import React, { useState } from "react";
 import StudentNavbar from "./studentNavbar";
 import {
-  Container,
-  Typography,
-  Box,
-  Button,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  List,
-  ListItem,
-  ListItemText,
-  TextField,
+    Container,
+    Typography,
+    Box,
+    Button,
+    Accordion,
+    AccordionSummary,
+    AccordionDetails,
+    List,
+    ListItem,
+    ListItemText,
+    TextField,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -30,9 +30,10 @@ const StudentDashboard = () => {
         <div>
             <StudentNavbar />
             <Container>
-                <Typography variant="h4" align="center" gutterBottom mt={4}>
-                    Welcome to the Student Dashboard    
-                </Typography>
+                <Box pb={8}>
+                    <Typography variant="h4" align="center" gutterBottom mt={4}>
+                        Welcome to the Student Dashboard
+                    </Typography>
 
                 {/* Book a Session */}
                 <Accordion defaultExpanded>
@@ -53,7 +54,7 @@ const StudentDashboard = () => {
                         </Box>
                     </AccordionDetails>
                 </Accordion>
-                
+
                 {/* Manage Appointments */}
                 <Accordion>
                     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -77,7 +78,7 @@ const StudentDashboard = () => {
                         <list>
                             <ListItem>
                                 <ListItemText primary="Session with Dr. Maleek" secondary="Date: 2024-10-15" />
-                            </ListItem> 
+                            </ListItem>
                         </list>
                     </AccordionDetails>
                 </Accordion>
@@ -98,7 +99,7 @@ const StudentDashboard = () => {
                         </Box>
                     </AccordionDetails>
                 </Accordion>
-
+                </Box>
             </Container>
         </div>
     );

@@ -1,15 +1,15 @@
 import React from "react";
-import { AppBar, Toolbar, Button, Typography } from '@mui/material' 
-import { Link } from 'react-router-dom';
+import { AppBar, Toolbar, Button, Typography } from '@mui/material'
+import { Link, useNavigate } from 'react-router-dom';
 import HomeIcon from '@mui/icons-material/Home';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
 
 
 const StudentNavbar = () => {
+    const navigate = useNavigate()
     const handleLogout = () => {
-        // Handle logout logic, such as clearing ssion or local storage
-        console.log("Logout clicked");
+        navigate('/login')
     };
 
     return (
@@ -17,7 +17,7 @@ const StudentNavbar = () => {
             <Toolbar>
                 {/* Home Button */}
                 <Link to="/student-dashboard" style={{ textDecoration: 'none', flexGrow: 1 }}>
-                    <Button color="inherit">
+                    <Button color="secondary">
                         <HomeIcon style={{ marginRight: '8px' }} />
                         {/* Add Home Icon */}
                     </Button>
@@ -25,7 +25,7 @@ const StudentNavbar = () => {
 
                 {/* Profile Button */}
                 <Link to="/student-dashboard" style={{ textDecoration: 'none' }}>
-                    <Button color="inherit">
+                    <Button color="secondary">
                         <AccountCircleIcon style={{ marginRight: '8px' }} />
                         {/* Add Profile Icon */}
 
@@ -33,10 +33,10 @@ const StudentNavbar = () => {
                 </Link>
 
                 {/* Logout Button */}
-                <Button color="inherit" onClick={handleLogout}>
+                <Button color="secondary" onClick={handleLogout}>
                     <LogoutIcon style={{ marginRight: '8px' }} />
                 </Button>
-            </Toolbar>   
+            </Toolbar>
         </AppBar>
     )
 }
