@@ -7,7 +7,7 @@
 }
 
 .register-btn {
-  width: 683px;
+    width: 100%;
     background: #04AA6D;
     color: white;
     padding: 10px;
@@ -42,7 +42,7 @@
 .register-input-group {
   display: flex;
   gap: 5px; /* Adjust spacing between fields */
-  margin-bottom: 15px
+  margin-bottom: 15px;
 }
 
 .register-input {
@@ -56,7 +56,7 @@
 }
 
 .register-input input {
-  width: 90%;
+  width: 100%;
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -72,7 +72,7 @@
   font-size: 13.3333px; /* Matches input field */
   height: 33.5px; /* Matches the input's height */
   padding: 8px; /* Ensures spacing matches */
-  width: 330.75px; /* Matches the input width */
+  width: 100%;
 }
 
 
@@ -161,6 +161,7 @@
 
 /* Input fields */
 .input-group {
+  width: 100%;
   text-align: left;
   margin-bottom: 12px;
 }
@@ -172,6 +173,26 @@
 }
 
 .input-group input {
+  width: 95%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+/* Input fields */
+.password-group {
+  width: 105%;
+  text-align: left;
+  margin-bottom: 12px;
+}
+
+.password-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.password-group input {
   width: 95%;
   padding: 8px;
   border: 1px solid #ccc;

@@ -8,9 +8,9 @@ const Login = () => {
   const navigate = useNavigate()  // Create history instance
   const [users, setUsers] = useState([])
   const [newLogin, setNewLogin] = useState({ email: '', password:''})
-  useEffect(() => {
+  /*useEffect(() => {
     fetchAllUsers(setUsers)
-  }, [setUsers]);
+  }, [setUsers]); */
 
   // Handle forgot password link click
   const handleForgotPassword = () => {
@@ -57,7 +57,8 @@ const Login = () => {
               placeholder="Enter email address" 
               value={newLogin.email}
               onChange={(event) => setNewLogin({...newLogin, email: event.target.value})}
-              required 
+              required
+              style={{width: '100%'}}
             />
           </div>
 
@@ -69,6 +70,7 @@ const Login = () => {
               value={newLogin.password}
               onChange={(event) => setNewLogin({...newLogin, password: event.target.value})}
               required
+              style={{width: '100%'}}
             />
           </div>
 

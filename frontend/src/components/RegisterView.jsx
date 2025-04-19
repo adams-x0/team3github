@@ -107,8 +107,12 @@ const Register = () => {
             return;
         }
         try {
-            await addUser(formData);
-            alert("User registered successfully!");
+            const success = await addUser(formData);
+            if (success) {
+              navigate('/student-dashboard')
+            } else {
+                console.error('failure)')
+            }
         } catch (error) {
             console.error("Registration failed:", error);
         }
@@ -154,7 +158,7 @@ const Register = () => {
                             <label>Phone number</label>
                             <input aria-required="true" id="phone" maxlength="10" name="phone" type="text" placeholder="Enter your phone number" value={formData.phone} onChange={handleInputChange} required />
                         </div>
-                    </div>       
+                    </div>
 
                     {/* Address & Role input */}
                     <div className="register-input-group">
@@ -176,7 +180,7 @@ const Register = () => {
                     {/* Date of birth */}
                     <div className="input-group">
                         <label>Date of Birth</label>
-                        <fieldset style={{width: '665px', padding: '8px', border: '1px solid #ccc', borderRadius: '5px'}}>
+                        <fieldset style={{width: '660px', padding: '8px', border: '1px solid #ccc', borderRadius: '5px'}}>
                             <div class="date-of-birth-container">
                                 <div className="field field-month">
                                     <label for="dobMonth">Month</label>
@@ -213,13 +217,13 @@ const Register = () => {
                     </div>
 
                     {/* Password Input */}
-                    <div className="input-group">
+                    <div className="password-group">
                         <label>Password</label>
                         <input aria-required="true" id="password" maxLength={256} name="password" type="password" placeholder="Enter password" value={formData.password} onChange={handlePasswordChange} onFocus={() => setPasswordFocused(true)} onBlur={() => setPasswordFocused(false)} required />
                     </div>
 
                     {/*Confirm password input */}
-                    <div className="input-group">
+                    <div className="password-group">
                         <label>Confirm Password</label>
                         <input aria-required="true" id="confirmPassword" maxLength={256} name="confirmPassword" type="password" placeholder="Confirm password" value={formData.confirmPassword} onChange={handleConfirmPasswordChange} required />
                     </div>

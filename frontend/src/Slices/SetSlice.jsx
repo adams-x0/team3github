@@ -25,12 +25,13 @@ export const addTherapist = async (therapistData) => {
         console.error("Error adding therapists:", error);
     }
 }
-// Might only need this user one if we add to both the user table
-// and whatever other child table(so student role = to student table) in the backend
+
 export const addUser = async (userData) => {
-    try{
-        await axios.post(`${BASE_URL}/addUsers`, userData)
+    try {
+        const response = await axios.post(`${BASE_URL}/addUsers`, userData);
+        return response.data;  // or return true;
     } catch (error) {
         console.error("Error adding users:", error);
+        return false;
     }
 }
