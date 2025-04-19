@@ -62,6 +62,20 @@ def create_tables():
             )
         """)
 
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS Appointments (
+                appointment_id INT AUTO_INCREMENT PRIMARY KEY,
+                student_id INT,
+                therapist_id INT,
+                date DATE,
+                time TIME,
+                status VARCHAR(50),
+                FOREIGN KEY (student_id) REFERENCES Students(student_id),
+                FOREIGN KEY (therapist_id) REFERENCES Therapists(therapist_id)
+            )
+        """)
+
+
         conn.commit()
         cursor.close()
         conn.close()
