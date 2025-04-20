@@ -1,14 +1,18 @@
 import React from "react";
-import { AppBar, Toolbar, Button, Typography } from '@mui/material'
+import { AppBar, Toolbar, Button } from '@mui/material'
 import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import HomeIcon from '@mui/icons-material/Home';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
+import { logoutUser } from '../Slices/authSlice';
 
 
 const StudentNavbar = () => {
     const navigate = useNavigate()
+    const dispatch = useDispatch();
     const handleLogout = () => {
+        dispatch(logoutUser());
         navigate('/login')
     };
 

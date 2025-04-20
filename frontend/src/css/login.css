@@ -99,5 +99,9 @@
   .forgot-password-btn:hover {
     color: #0056b3; /* Darker blue on hover */
   }
-  
-  
+
+  .error-text {
+    color: red;
+    margin-top: 10px;
+    font-size: 0.9em;
+  }

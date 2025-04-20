@@ -104,7 +104,7 @@ def add_user():
     date_fields = data.get('dateFields', {})
     license_number = data.get('licenseNumber', '') # Needs implementation on frontend
     specialization = data.get('specialization', '') # ditto
-    is_verified = data.get('isVerified', False) #ditto 
+    is_verified = data.get('isVerified', False) #ditto
 
     # Format DOB
     dob = None
@@ -149,6 +149,41 @@ def add_user():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route('/login', methods=['POST'])
+def login():
+    try:
+        data = request.get_json()
+
+        email = data.get('email')
+        password = data.get('password')
+
+        if not email or not password:
+            return jsonify({'error': 'Email and password are required'}), 400
+
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+
+        cursor.execute("SELECT * FROM Users WHERE email = %s", (email,))
+        user = cursor.fetchone()
+
+        if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
+            user.pop('password', None)
+            return jsonify({'message': 'Login successful', 'user': user}), 200
+        else:
+            return jsonify({'error': 'Invalid email or password'}), 401
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+    finally:
+        try:
+            cursor.close()
+            conn.close()
+        except:
+            pass
+
 
 
 # Entry point

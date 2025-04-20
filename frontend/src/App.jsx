@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import './css/App.css';
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
@@ -13,7 +13,7 @@ import StudentDashboard from './components/StudentDashboard';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#04AA6D', 
+      main: '#04AA6D',
     },
     secondary: {
       main: '#FFFFFF',
@@ -28,17 +28,16 @@ const App = () => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Router>
-        <Routes>
-          <Route path="/login" element={<LoginView />} />
-          <Route path="/ForgotPassword" element={<ForgotPasswordView />} />
-          <Route path="/register" element={<RegisterView />} />
-          <Route path="/student-dashboard" element={<StudentDashboard />} />
-        </Routes>
-      </Router>
+      <Routes>
+        <Route path="/login" element={<LoginView />} />
+        <Route path="/ForgotPassword" element={<ForgotPasswordView />} />
+        <Route path="/register" element={<RegisterView />} />
+        <Route path="/student-dashboard" element={<StudentDashboard />} />
+      </Routes>
     </ThemeProvider>
   );
 };
 
 export default App;
+
 
