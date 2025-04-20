@@ -9,6 +9,7 @@ import LoginView from './components/LoginView';
 import RegisterView from './components/RegisterView';
 import ForgotPasswordView from './components/ForgotPasswordView';
 import StudentDashboard from './components/StudentDashboard';
+import ParentDashboard from './components/ParentDashboard';
 
 const theme = createTheme({
   palette: {
@@ -33,6 +34,7 @@ const App = () => {
         <Route path="/ForgotPassword" element={<ForgotPasswordView />} />
         <Route path="/register" element={<RegisterView />} />
         <Route path="/student-dashboard" element={<StudentDashboard />} />
+        <Route path="/parent-dashboard" element={<ParentDashboard />} />
       </Routes>
     </ThemeProvider>
   );
