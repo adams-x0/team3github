@@ -114,7 +114,9 @@ const StudentDashboard = () => {
                                             </RadioGroup>
                                         </Box>
                                     ) : <Box mt={3}>
-                                            <Typography variant="subtitle1">Available Times: None</Typography>
+                                            <Typography variant="subtitle1">
+                                                Available times for {selectedDate.format("MMMM Do, YYYY")}: None
+                                            </Typography>
                                         </Box>
                                     }
                                 </Box>
