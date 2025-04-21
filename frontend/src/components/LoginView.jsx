@@ -25,7 +25,7 @@ useEffect(() => {
         navigate('/student-dashboard');
         break;
       case 'guardian':
-        navigate('/student-dashboard');
+        navigate('/parent-dashboard');
         break;
       case 'therapist':
         navigate('/student-dashboard');
