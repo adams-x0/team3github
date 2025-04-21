@@ -109,7 +109,19 @@ const Register = () => {
         try {
             const success = await addUser(formData);
             if (success) {
-              navigate('/student-dashboard')
+                switch (formData.role) {
+                    case 'student':
+                      navigate('/student-dashboard');
+                      break;
+                    case 'guardian':
+                      navigate('/parent-dashboard');
+                      break;
+                    case 'therapist':
+                      navigate('/student-dashboard');
+                      break;
+                    default:
+                      navigate('/');
+                  }
             } else {
                 console.error('failure)')
             }
