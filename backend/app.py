@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify  # type: ignore
 from flask_cors import CORS  # type: ignore
 import bcrypt  # type: ignore
 import mysql.connector  # type: ignore
+import json
 
 app = Flask(__name__)
 CORS(app)  # Allow frontend to make requests
@@ -58,6 +59,7 @@ def create_tables():
                 license_number VARCHAR(100),
                 specialization VARCHAR(255),
                 isVerified BOOLEAN DEFAULT FALSE,
+                availability JSON,
                 FOREIGN KEY (user_id) REFERENCES Users(user_id)
             )
         """)
@@ -197,7 +199,8 @@ def get_therapists():
             u.email,
             t.license_number,
             t.specialization,
-            t.isVerified
+            t.isVerified,
+            t.availability
         FROM Therapists t
         JOIN Users u ON t.user_id = u.user_id
     """
@@ -210,8 +213,26 @@ def get_therapists():
 
     return jsonify(therapists)
 
+@app.route('/updateAvailability', methods=['POST'])
+def update_availability():
+    data = request.get_json()
+    therapist_id = data['therapist_id']
+    new_availability = data['availability']  # Should be a dict like above
 
+    connection = get_db_connection()
+    cursor = connection.cursor()
 
+    cursor.execute("""
+        UPDATE Therapists
+        SET availability = %s
+        WHERE therapist_id = %s
+    """, (json.dumps(new_availability), therapist_id))
+
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+    return jsonify({"message": "Availability updated"}), 200
 
 # Entry point
 if __name__ == '__main__':
