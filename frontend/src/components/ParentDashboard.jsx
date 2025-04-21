@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import ParentNavbar from "./parentNavbar";
+import React, { useEffect, useState } from "react";
 import {
     Container,
     Typography,
@@ -12,18 +11,29 @@ import {
     ListItem,
     ListItemText,
     TextField,
+    Radio,
+    RadioGroup,
+    FormControlLabel,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
+import { fetchAllTherapists } from "../Slices/GetSlice"
 import dayjs from "dayjs";
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import ParentNavbar from "./parentNavbar";
 
 
 const ParentDashboard = () => {
     const navigate = useNavigate()
     const [selectedDate, setSelectedDate] = useState(dayjs());
+    const [therapists, setTherapists] = useState([]);
+    const [selectedTherapistId, setSelectedTherapistId] = useState(null);
+    
+    useEffect(() => {
+        fetchAllTherapists(setTherapists);
+    }, [setTherapists]);
 
     const handleBookSession = () => {
         console.log("Session booked for:", selectedDate.format("YYYY-MM-DD"));
@@ -49,24 +59,48 @@ const ParentDashboard = () => {
                     </Box>
 
                     {/* Book a Session */}
-                    <Accordion defaultExpanded sx={{ mb: 2 }}>
+                <Accordion defaultExpanded sx={{ mb: 2 }}>
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                             <Typography variant="h6">Book a Session</Typography>
                         </AccordionSummary>
                         <AccordionDetails>
-                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                <DateCalendar
-                                    value={selectedDate}
-                                    onChange={(newValue) => setSelectedDate(newValue)}
-                                />
-                            </LocalizationProvider>
+                            <Box display="flex" flexDirection={{ xs: "column", md: "row" }} justifyContent="space-between">
+                                {/* Date Picker */}
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                    <DateCalendar
+                                        value={selectedDate}
+                                        onChange={(newValue) => setSelectedDate(newValue)}
+                                    />
+                                </LocalizationProvider>
+
+                                {/* Therapist Selection */}
+                                <Box ml={{ md: 4 }} mt={{ xs: 2, md: 0 }} flexGrow={1}>
+                                    <Typography variant="subtitle1" gutterBottom>
+                                        Select a Therapist:
+                                    </Typography>
+                                    <RadioGroup
+                                        value={selectedTherapistId}
+                                        onChange={(e) => setSelectedTherapistId(e.target.value)}
+                                    >
+                                        {therapists.map((therapist) => (
+                                            <FormControlLabel
+                                                key={therapist.therapist_id}
+                                                value={therapist.therapist_id}
+                                                control={<Radio />}
+                                                label={`${therapist.first_name} ${therapist.last_name} — ${therapist.specialization}`}
+                                            />
+                                        ))}
+                                    </RadioGroup>
+                                </Box>
+                            </Box>
+
                             <Box mt={2}>
                                 <Button variant="contained" color="primary" onClick={handleBookSession}>
                                     Book Session
                                 </Button>
                             </Box>
                         </AccordionDetails>
-                    </Accordion>
+                </Accordion>
 
                     {/* Manage Appointments */}
                     <Accordion sx={{ mb: 2 }}>
