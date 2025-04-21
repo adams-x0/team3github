@@ -30,7 +30,8 @@ const ParentDashboard = () => {
     const [selectedDate, setSelectedDate] = useState(dayjs());
     const [therapists, setTherapists] = useState([]);
     const [selectedTherapistId, setSelectedTherapistId] = useState(null);
-    
+    const [selectedTime, setSelectedTime] = useState('');
+
     useEffect(() => {
         fetchAllTherapists(setTherapists);
     }, [setTherapists]);
@@ -38,6 +39,22 @@ const ParentDashboard = () => {
     const handleBookSession = () => {
         console.log("Session booked for:", selectedDate.format("YYYY-MM-DD"));
     }
+
+    const selectedTherapist = therapists.find(
+        (therapist) => String(therapist.therapist_id) === String(selectedTherapistId)
+    );
+
+    const dayOfWeek = selectedDate ? selectedDate.format('dddd') : null;
+    let availableTimes = [];
+    if (selectedTherapist && selectedTherapist.availability) {
+        try {
+            const availabilityObj = JSON.parse(selectedTherapist.availability);
+            availableTimes = availabilityObj[dayOfWeek] || [];
+        } catch (err) {
+            console.error('Failed to parse availability JSON:', err);
+        }
+    }
+
     return (
         <div>
             <ParentNavbar />
@@ -91,6 +108,28 @@ const ParentDashboard = () => {
                                             />
                                         ))}
                                     </RadioGroup>
+                                    {availableTimes.length > 0 ? (
+                                        <Box mt={3}>
+                                            <Typography variant="subtitle1">Available times for {selectedDate.format("MMMM Do, YYYY")}:</Typography>
+                                            <RadioGroup
+                                                value={selectedTime}
+                                                onChange={(e) => setSelectedTime(e.target.value)}
+                                                row
+                                            >
+                                                {availableTimes.map((time) => (
+                                                    <FormControlLabel
+                                                        key={time}
+                                                        value={time}
+                                                        control={<Radio />}
+                                                        label={time}
+                                                    />
+                                                ))}
+                                            </RadioGroup>
+                                        </Box>
+                                    ) : <Box mt={3}>
+                                            <Typography variant="subtitle1">Available Times: None</Typography>
+                                        </Box>
+                                    }
                                 </Box>
                             </Box>
 
