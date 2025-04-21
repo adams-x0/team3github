@@ -139,9 +139,23 @@ def add_user():
         elif role == 'guardian':
             cursor.execute("INSERT INTO Guardians (user_id) VALUES (%s)", (user_id,))
         elif role == 'therapist':
+            default_availability = {
+                "Monday": ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"],
+                "Tuesday": ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"],
+                "Wednesday": ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"],
+                "Thursday": ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"],
+                "Friday": ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"],
+            }
             cursor.execute("""
-            INSERT INTO Therapists (user_id, license_number, specialization, isVerified)
-            VALUES (%s, %s, %s, %s)""", (user_id, license_number, specialization, is_verified))
+                INSERT INTO Therapists (user_id, license_number, specialization, isVerified, availability)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (
+                user_id,
+                license_number,
+                specialization,
+                is_verified,
+                json.dumps(default_availability)
+            ))
 
         conn.commit()
         cursor.close()
