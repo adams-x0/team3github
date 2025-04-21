@@ -184,6 +184,33 @@ def login():
         except:
             pass
 
+@app.route('/getTherapists', methods=['GET'])
+def get_therapists():
+    connection = get_db_connection()
+    cursor = connection.cursor(dictionary=True)  # So rows are returned as dicts
+
+    query = """
+        SELECT
+            t.therapist_id,
+            u.first_name,
+            u.last_name,
+            u.email,
+            t.license_number,
+            t.specialization,
+            t.isVerified
+        FROM Therapists t
+        JOIN Users u ON t.user_id = u.user_id
+    """
+
+    cursor.execute(query)
+    therapists = cursor.fetchall()
+
+    cursor.close()
+    connection.close()
+
+    return jsonify(therapists)
+
+
 
 
 # Entry point
