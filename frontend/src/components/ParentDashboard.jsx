@@ -210,51 +210,78 @@ const ParentDashboard = () => {
                         </AccordionSummary>
                         <AccordionDetails>
                             <List>
-                                <ListItem secondaryAction={<Button color="error">Cancel</Button>}>
-                                    <ListItemText
-                                        primary="Session with Dr. Smith"
-                                        secondary="Date: 2025-10-15"
-                                    />
+                                <ListItem
+                                    secondaryAction={
+                                        
+                                        <Box display="flex" gap={1}>
+                                            <Button variant="outlined" color="primary">Reschedule</Button>
+                                            <Button variant="contained" color="error">Cancel</Button>
+                                        </Box>
+                                    }
+                                >
+                                    <ListItemText primary="Session with Dr. Smith" secondary="Date: 2025-10-15, 10:00 AM" />
                                 </ListItem>
                             </List>
                         </AccordionDetails>
                     </Accordion>
-    
+
                     {/* View History */}
                     <Accordion sx={{ mb: 5 }}>
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                            <Typography variant="h6">View History</Typography>
+                            <Typography variant="h6">View Session History</Typography>
                         </AccordionSummary>
                         <AccordionDetails>
                             <List>
-                                <ListItem>
-                                    <ListItemText
-                                        primary="Session with Dr. Maleek"
-                                        secondary="Date: 2024-10-15"
-                                    />
+                                <ListItem
+                                    onClick={() => navigate('/student-dashboard')}
+                                    sx={{
+                                        border: '1px solid #ccc',
+                                        borderRadius: 2,
+                                        mb: 1,
+                                        transition: 'background-color 0.3s',
+                                        '&:hover': { backgroundColor: 'action.hover',
+                                        },
+                                        '&:focus': {
+                                            backgroundColor: 'primary.main',
+                                            color: 'white',
+                                        }
+                                    }}
+                                    secondaryAction={
+                                        <Button variant="outlined" color="primary">View Notes</Button>
+                                    }
+                                >
+                                    <ListItemText primary="Dr. Maleek" secondary="Last Session Date: 2024-10-15 02:00 PM" />
                                 </ListItem>
                             </List>
                         </AccordionDetails>
                     </Accordion>
-    
+
                     {/* Find Therapist */}
                     <Accordion sx={{ mb: 5 }}>
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                             <Typography variant="h6">Find Therapist</Typography>
                         </AccordionSummary>
                         <AccordionDetails>
-                            <TextField
-                                label="Search by name, specialization ..."
-                                fullWidth
-                            />
+                            <TextField label="Search by name, specialization ..." fullWidth />
                             <Box mt={2}>
                                 <List>
-                                    <ListItem secondaryAction={<Button variant="outlined">View Profile</Button>}>
-                                        <ListItemText
-                                            primary="Dr. Jane Doe"
-                                            secondary="Specialization: Physical Therapy"
-                                        />
-                                    </ListItem>
+                                    <ListItem
+                                        onClick={() => navigate('/student-dashboard')}
+                                        sx={{
+                                            border: '1px solid #ccc',
+                                            borderRadius: 2,
+                                            mb: 1,
+                                            transition: 'background-color 0.3s',
+                                            '&:hover': { backgroundColor: 'action.hover',
+                                            },
+                                            '&:focus': {
+                                                backgroundColor: 'primary.main',
+                                                color: 'white',
+                                            }
+                                        }}
+                                        secondaryAction={<Button variant="outlined">View Profile</Button>}>
+                                    <ListItemText primary="Dr. Jane Doe" secondary="Specialization: Physical Therapy"/>
+                                </ListItem>
                                 </List>
                             </Box>
                         </AccordionDetails>

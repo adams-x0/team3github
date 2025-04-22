@@ -171,7 +171,7 @@ const TherapistDashboard = () => {
                     {/* View History */}
                     <Accordion sx={{ mb: 5 }}>
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                            <Typography variant="h6">View Past Session History</Typography>
+                            <Typography variant="h6">View Session History</Typography>
                         </AccordionSummary>
                         <AccordionDetails>
                             <List>
