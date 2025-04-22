@@ -11,7 +11,7 @@ import ForgotPasswordView from './components/ForgotPasswordView';
 import StudentDashboard from './components/StudentDashboard';
 import ParentDashboard from './components/ParentDashboard';
 import TherapistDashboard from './components/TherapistDashboard';
-import TherapistNavbar from './components/therapistNavbar'; 
+
 const theme = createTheme({
   palette: {
     primary: {

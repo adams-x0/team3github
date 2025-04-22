@@ -117,7 +117,7 @@ const Register = () => {
                       navigate('/parent-dashboard');
                       break;
                     case 'therapist':
-                      navigate('/student-dashboard');
+                      navigate('/therapist-dashboard');
                       break;
                     default:
                       navigate('/');

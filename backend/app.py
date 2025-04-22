@@ -71,6 +71,7 @@ def create_tables():
                 therapist_id INT,
                 date DATE,
                 time TIME,
+                location VARCHAR(100),
                 status VARCHAR(50),
                 FOREIGN KEY (student_id) REFERENCES Students(student_id),
                 FOREIGN KEY (therapist_id) REFERENCES Therapists(therapist_id)
@@ -247,6 +248,32 @@ def update_availability():
     connection.close()
 
     return jsonify({"message": "Availability updated"}), 200
+
+@app.route('/bookAppointment', methods=['POST'])
+def book_appointment():
+    data = request.get_json()
+
+    student_id = data['student_id']
+    therapist_id = data['therapist_id']
+    date = data['date']           # Format: 'YYYY-MM-DD'
+    time = data['time']           # Format: 'HH:MM'
+    location = data['location']
+    status = 'pending'            # Default status
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        INSERT INTO Appointments (student_id, therapist_id, date, time, location, status)
+        VALUES (%s, %s, %s, %s, %s, %s)
+    """, (student_id, therapist_id, date, time, location, status))
+
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+    return jsonify({"message": "Appointment booked successfully"}), 201
+
 
 # Entry point
 if __name__ == '__main__':

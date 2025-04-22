@@ -35,3 +35,14 @@ export const addUser = async (userData) => {
         return false;
     }
 }
+
+export const bookAppointment = async (appointmentData) => {
+    try {
+        console.log('tree')
+        const response = await axios.post(`${BASE_URL}/bookAppointment`, appointmentData);
+        return response.data;  // or return true;
+    } catch (error) {
+        console.error("Error booking appointment:", error);
+        return false;
+    }
+};
