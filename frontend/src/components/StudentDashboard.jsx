@@ -21,6 +21,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import { fetchAllTherapists } from "../Slices/GetSlice"
+import { bookAppointment } from "../Slices/SetSlice";
 import dayjs from "dayjs";
 
 
@@ -34,9 +35,27 @@ const StudentDashboard = () => {
         fetchAllTherapists(setTherapists);
     }, [setTherapists]);
 
-    const handleBookSession = () => {
-        console.log("Session booked for:", selectedDate.format("YYYY-MM-DD"));
-    }
+    const handleBookSession = async () => {
+        if (!selectedTherapistId || !selectedTime) {
+            alert("Please select a therapist and time.");
+            return;
+        }
+    
+        const appointmentData = {
+            student_id: 1,  // Replace with actual student_id from auth or context
+            therapist_id: selectedTherapistId,
+            date: selectedDate.format("YYYY-MM-DD"),
+            time: selectedTime,
+            location: "Online",
+        };
+    
+        const success = await bookAppointment(appointmentData);
+        if (success) {
+            alert("Appointment booked successfully and is now pending.");
+        } else {
+            alert("Failed to book appointment. Please try again.");
+        }
+    };
 
     const selectedTherapist = therapists.find(
         (therapist) => String(therapist.therapist_id) === String(selectedTherapistId)

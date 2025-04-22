@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
     Container,
     Typography,
@@ -11,22 +11,13 @@ import {
     ListItem,
     ListItemText,
     TextField,
-    Radio,
-    RadioGroup,
-    FormControl,
-    FormControlLabel,
-    InputLabel,
-    Select,
-    MenuItem
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
-// import { fetchAllTherapists } from "../Slices/GetSlice";
 import dayjs from "dayjs";
 import { useNavigate } from 'react-router-dom';
-import ParentNavbar from "./therapistNavbar";
 import TherapistNavbar from "./therapistNavbar";
 
 
@@ -34,18 +25,6 @@ import TherapistNavbar from "./therapistNavbar";
 const TherapistDashboard = () => {
     const navigate = useNavigate()
     const [selectedDate, setSelectedDate] = useState(dayjs());
-    const [therapists, setTherapists] = useState([]);
-    const [selectedTherapistId, setSelectedTherapistId] = useState(null);
-    const [selectedTime, setSelectedTime] = useState('');
-    const [selectedChild, setSelectedChild] = useState('');
-    const children = ["John Doe", "Jane Smith", "Alice Johnson"];
-
-    const handleBookSession = () => {
-        console.log("Session booked for:", selectedDate.format("YYYY-MM-DD"));
-    }
-
-    const dayOfWeek = selectedDate ? selectedDate.format('dddd') : null;
-    let availableTimes = [];
 
     return (
         <div>

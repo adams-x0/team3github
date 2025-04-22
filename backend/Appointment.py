@@ -1,7 +1,7 @@
 from datetime import datetime
 
 class Appointment:
-    def __init__(self, student_id, therapist_id, date, time, status='pending', appointment_id=None, location):
+    def __init__(self, student_id, therapist_id, date, time, location, status='pending', appointment_id=None):
         self.appointment_id = appointment_id
         self.student_id = student_id
         self.therapist_id = therapist_id
@@ -23,7 +23,7 @@ class Appointment:
             "therapist_id": self.therapist_id,
             "date": self.date,
             "time": self.time,
-            "status": self.status
+            "status": self.status,
             "location": self.location
         }
 
