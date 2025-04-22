@@ -128,7 +128,6 @@ const Register = () => {
         } catch (error) {
             console.error("Registration failed:", error);
         }
-        console.log(formData); // Log form data to console
     }
 
     const navigate = useNavigate(); // hook to navigate to previous page
@@ -168,7 +167,7 @@ const Register = () => {
                         </div>
                         <div className="register-input">
                             <label>Phone number</label>
-                            <input aria-required="true" id="phone" maxlength="10" name="phone" type="text" placeholder="Enter your phone number" value={formData.phone} onChange={handleInputChange} required />
+                            <input aria-required="true" id="phone" maxLength="10" name="phone" type="text" placeholder="Enter your phone number" value={formData.phone} onChange={handleInputChange} required />
                         </div>
                     </div>
 
@@ -181,7 +180,7 @@ const Register = () => {
                         <div className="register-input">
                             <label>Role</label>
                             <select name="role" value={formData.role} onChange={handleInputChange} required>
-                                <option value="" disabled selected>Enter your role</option>
+                                <option value="" disabled>Enter your role</option>
                                 <option value="student">Student</option>
                                 <option value="guardian">Guardian</option>
                                 <option value="therapist">Therapist</option>
@@ -193,9 +192,9 @@ const Register = () => {
                     <div className="input-group">
                         <label>Date of Birth</label>
                         <fieldset style={{width: '660px', padding: '8px', border: '1px solid #ccc', borderRadius: '5px'}}>
-                            <div class="date-of-birth-container">
+                            <div className="date-of-birth-container">
                                 <div className="field field-month">
-                                    <label for="dobMonth">Month</label>
+                                    <label htmlFor="dobMonth">Month</label>
                                     <select id="dobMonth" name="dobMonth" value={formData.dateFields.dobMonth} onChange={handleInputChange} required>
                                         <option value="0">Select</option>
                                         <option value="1">January</option>
@@ -213,15 +212,15 @@ const Register = () => {
                                     </select>
                                 </div>
 
-                                <div class="field field-day">
-                                    <label for="dobDay">Day</label>
-                                    <input aria-required="true" class="input-group" name= "dobDay"  id="dobDay" max="5" maxlength="2"
+                                <div className="field field-day">
+                                    <label htmlFor="dobDay">Day</label>
+                                    <input aria-required="true" className="input-group" name= "dobDay"  id="dobDay" max="5" maxLength="2"
                                     min="1" type="number" value={formData.dateFields.dobDay} onChange={handleInputChange} required />
                                 </div>
 
-                                <div class="field field-year">
-                                    <label for="dobYear">Year</label>
-                                    <input aria-required="true" class="input-group" id="dobYear" max="9999" maxlength="4" min="1890" name="dobYear" type="number" value={formData.dateFields.dobYear} onChange={handleInputChange} required />
+                                <div className="field field-year">
+                                    <label htmlFor="dobYear">Year</label>
+                                    <input aria-required="true" className="input-group" id="dobYear" max="9999" maxLength="4" min="1890" name="dobYear" type="number" value={formData.dateFields.dobYear} onChange={handleInputChange} required />
                                 </div>
                             </div>
 
