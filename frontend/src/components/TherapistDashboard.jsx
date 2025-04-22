@@ -55,7 +55,7 @@ const TherapistDashboard = () => {
                                 </LocalizationProvider>
     
                                 {/* Action Buttons */}
-                                <box display="flex" flexDirection={{ xs: "column", sm: "row" }} gap={2} mt={3} >
+                                <Box>
                                     <Button
                                         variant="contained"
                                         color="error"
@@ -78,7 +78,7 @@ const TherapistDashboard = () => {
                                             Available times for {selectedDate.format("MMMM Do, YYYY")}: None
                                         </Typography>
                                     </Box>
-                                </box>
+                                </Box>
                             </Box>
                         </AccordionDetails>
                     </Accordion>
