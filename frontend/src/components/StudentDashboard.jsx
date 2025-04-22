@@ -63,7 +63,7 @@ const StudentDashboard = () => {
                     </Typography>
 
                 {/* Book a Session */}
-                <Accordion defaultExpanded sx={{ mb: 2 }}>
+                <Accordion defaultExpanded sx={{ mb: 5 }}>
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                             <Typography variant="h6">Book a Session</Typography>
                         </AccordionSummary>
@@ -131,7 +131,7 @@ const StudentDashboard = () => {
                 </Accordion>
 
                 {/* Manage Appointments */}
-                <Accordion sx={{ mb: 2 }}>
+                <Accordion sx={{ mb: 5 }}>
                     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                         <Typography variant="h6">Manage Appointments</Typography>
                     </AccordionSummary>
@@ -145,21 +145,21 @@ const StudentDashboard = () => {
                 </Accordion>
 
                 {/* View History */}
-                <Accordion sx={{ mb: 2 }}>
+                <Accordion sx={{ mb: 5 }}>
                     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                         <Typography variant="h6">View History</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                        <list>
+                        <List>
                             <ListItem>
                                 <ListItemText primary="Session with Dr. Maleek" secondary="Date: 2024-10-15" />
                             </ListItem>
-                        </list>
+                        </List>
                     </AccordionDetails>
                 </Accordion>
 
                 {/* Find Therapist */}
-                <Accordion sx={{ mb: 2 }}>
+                <Accordion sx={{ mb: 5 }}>
                     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                         <Typography variant="h6">Find Therapist</Typography>
                     </AccordionSummary>

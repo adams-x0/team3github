@@ -83,7 +83,7 @@ const ParentDashboard = () => {
                     </Box>
     
                     {/* Book a Session */}
-                    <Accordion defaultExpanded sx={{ mb: 2 }}>
+                    <Accordion defaultExpanded sx={{ mb: 5 }}>
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                             <Typography variant="h6">Book a Session</Typography>
                         </AccordionSummary>
@@ -107,7 +107,7 @@ const ParentDashboard = () => {
                                     <Typography variant="subtitle1" gutterBottom>
                                         Select a Child:
                                     </Typography>
-                                    <FormControl fullWidth sx={{ mb: 2 }}>
+                                    <FormControl fullWidth sx={{ mb: 5 }}>
                                         <InputLabel id="child-select-label">Child</InputLabel>
                                         <Select
                                             labelId="child-select-label"
@@ -185,7 +185,7 @@ const ParentDashboard = () => {
                     </Accordion>
     
                     {/* Manage Appointments */}
-                    <Accordion sx={{ mb: 2 }}>
+                    <Accordion sx={{ mb: 5 }}>
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                             <Typography variant="h6">Manage Appointments</Typography>
                         </AccordionSummary>
@@ -202,7 +202,7 @@ const ParentDashboard = () => {
                     </Accordion>
     
                     {/* View History */}
-                    <Accordion sx={{ mb: 2 }}>
+                    <Accordion sx={{ mb: 5 }}>
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                             <Typography variant="h6">View History</Typography>
                         </AccordionSummary>
@@ -219,7 +219,7 @@ const ParentDashboard = () => {
                     </Accordion>
     
                     {/* Find Therapist */}
-                    <Accordion sx={{ mb: 2 }}>
+                    <Accordion sx={{ mb: 5 }}>
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                             <Typography variant="h6">Find Therapist</Typography>
                         </AccordionSummary>

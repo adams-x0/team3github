@@ -10,7 +10,8 @@ import RegisterView from './components/RegisterView';
 import ForgotPasswordView from './components/ForgotPasswordView';
 import StudentDashboard from './components/StudentDashboard';
 import ParentDashboard from './components/ParentDashboard';
-
+import TherapistDashboard from './components/TherapistDashboard';
+import TherapistNavbar from './components/therapistNavbar'; 
 const theme = createTheme({
   palette: {
     primary: {
@@ -35,6 +36,7 @@ const App = () => {
         <Route path="/register" element={<RegisterView />} />
         <Route path="/student-dashboard" element={<StudentDashboard />} />
         <Route path="/parent-dashboard" element={<ParentDashboard />} />
+        <Route path="/therapist-dashboard" element={<TherapistDashboard />} />
       </Routes>
     </ThemeProvider>
   );
