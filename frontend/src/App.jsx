@@ -11,6 +11,7 @@ import ForgotPasswordView from './components/ForgotPasswordView';
 import StudentDashboard from './components/StudentDashboard';
 import ParentDashboard from './components/ParentDashboard';
 import TherapistDashboard from './components/TherapistDashboard';
+import AdminDashboard from './components/AdminDashboard';
 
 const theme = createTheme({
   palette: {
@@ -37,6 +38,7 @@ const App = () => {
         <Route path="/student-dashboard" element={<StudentDashboard />} />
         <Route path="/parent-dashboard" element={<ParentDashboard />} />
         <Route path="/therapist-dashboard" element={<TherapistDashboard />} />
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
       </Routes>
     </ThemeProvider>
   );
