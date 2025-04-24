@@ -201,6 +201,41 @@ def login():
         except:
             pass
 
+
+@app.route('/admin-login', methods=['POST'])
+def admin_login():
+    try:
+        data = request.get_json()
+
+        email = data.get('email')
+        password = data.get('password')
+
+        if not email or not password:
+            return jsonify({'error': 'Email and password are required'}), 400
+
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute("SELECT * FROM Admins WHERE username = %s", (email,))
+        admin = cursor.fetchone()
+
+        # if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
+        if admin and password == admin['password']:
+            admin.pop('password', None)
+            return jsonify({'message': 'Login successful', 'user': admin}), 200
+        else:
+            return jsonify({'error': 'Invalid email or password'}), 401
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+    finally:
+        try:
+            cursor.close()
+            conn.close()
+        except:
+            pass
+
 @app.route('/getTherapists', methods=['GET'])
 def get_therapists():
     connection = get_db_connection()

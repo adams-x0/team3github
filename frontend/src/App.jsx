@@ -12,6 +12,7 @@ import StudentDashboard from './components/StudentDashboard';
 import ParentDashboard from './components/ParentDashboard';
 import TherapistDashboard from './components/TherapistDashboard';
 import AdminDashboard from './components/AdminDashboard';
+import AdminLoginView from './components/AdminLoginView';
 
 const theme = createTheme({
   palette: {
@@ -39,6 +40,7 @@ const App = () => {
         <Route path="/parent-dashboard" element={<ParentDashboard />} />
         <Route path="/therapist-dashboard" element={<TherapistDashboard />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        <Route path="/admin-login" element={<AdminLoginView />} />
       </Routes>
     </ThemeProvider>
   );

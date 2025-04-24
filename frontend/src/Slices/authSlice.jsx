@@ -6,9 +6,10 @@ const BASE_URL = 'http://127.0.0.1:5000';
 // Async thunk for logging in
 export const loginUser = createAsyncThunk(
   'auth/loginUser',
-  async ({ email, password }, { rejectWithValue }) => {
+  async ({ email, password, isAdmin = false }, { rejectWithValue }) => {
+    const endpoint = isAdmin ? '/admin-login' : '/login';
     try {
-      const response = await axios.post(`${BASE_URL}/login`, { email, password });
+      const response = await axios.post(`${BASE_URL}${endpoint}`, { email, password });
       return response.data.user;
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || 'Login failed');
