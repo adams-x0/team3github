@@ -120,7 +120,7 @@ const AdminDashboard = () => {
 
 
                     {/* Monitor Appointments */}
-                    <Accordion sx={{ mb: 5 }}>
+                    <Accordion sx={{mt: 5, mb: 5 }}>
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                             <Typography variant="h6">Monitor Appointments</Typography>
                         </AccordionSummary>

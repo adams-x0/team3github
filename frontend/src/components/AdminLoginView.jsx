@@ -19,12 +19,18 @@ const dispatch = useDispatch();
 const { user, error, loading } = useSelector((state) => state.auth);
 
 
-const handleNext = (e) => {
+const handleNext = async (e) => {
   e.preventDefault();
 
   if (newLogin.email && newLogin.password) {
-    // dispatch(loginUser(newLogin));
-    dispatch(loginUser({ ...newLogin, isAdmin: true}))
+    try {
+      const user = await dispatch(loginUser({ ...newLogin, isAdmin: true })).unwrap();
+      
+      navigate('/admin-dashboard');
+    }    
+    catch (error) {
+      console.error('Login failed:', error);
+    }
   }
 };
 
