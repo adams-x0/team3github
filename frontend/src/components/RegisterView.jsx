@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import '../css/register.css'
 import { useNavigate } from 'react-router-dom';
-import {addUser} from '../Slices/SetSlice.jsx'
 import zxcvbn from "zxcvbn"; // Import zxcvbn for password strength checking
+import { useDispatch } from 'react-redux';
+import { registerUser } from '../Slices/authSlice';
 
 const Register = () => {
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     const [formData, setFormData] = useState({
         firstName: "",
@@ -100,43 +103,45 @@ const Register = () => {
         } 
     }
 
-    // Handle next button click
-    const handleNext = async () => { 
-        // Ensure passwords match
-        if (formData.password !== formData.confirmPassword) {
-            return;
-        }
+    const handleNext = async () => {
+        if (formData.password !== formData.confirmPassword) return;
+    
+        const { dobYear, dobMonth, dobDay } = formData.dateFields;
+        const dob = `${dobYear}-${dobMonth.padStart(2, '0')}-${dobDay.padStart(2, '0')}`;
+    
+        const fullFormData = {
+            ...formData,
+            dob: dob,
+        };
+    
         try {
-            const success = await addUser(formData);
-            if (success) {
+            const result = await dispatch(registerUser(fullFormData));
+            if (registerUser.fulfilled.match(result)) {
                 switch (formData.role) {
                     case 'student':
-                      navigate('/student-dashboard');
-                      break;
+                        navigate('/student-dashboard');
+                        break;
                     case 'guardian':
-                      navigate('/parent-dashboard');
-                      break;
+                        navigate('/parent-dashboard');
+                        break;
                     case 'therapist':
-                      navigate('/therapist-dashboard');
-                      break;
+                        navigate('/therapist-dashboard');
+                        break;
                     default:
-                      navigate('/');
-                  }
+                        navigate('/');
+                }
             } else {
-                console.error('failure)')
+                console.error('Registration failed:', result.payload);
             }
         } catch (error) {
-            console.error("Registration failed:", error);
+            console.error("Registration error:", error);
         }
-    }
+    };
 
-    const navigate = useNavigate(); // hook to navigate to previous page
-    
     // Function to handle going back to the previous page
     const handleCancel = () => {
         navigate(-1); // Go back one step in the history
     };
-
 
     return (
         <div className="register-modal-container">

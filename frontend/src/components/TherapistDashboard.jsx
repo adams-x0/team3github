@@ -18,6 +18,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import dayjs from "dayjs";
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from "react-redux";
 import TherapistNavbar from "./therapistNavbar";
 
 
@@ -25,6 +26,8 @@ import TherapistNavbar from "./therapistNavbar";
 const TherapistDashboard = () => {
     const navigate = useNavigate()
     const [selectedDate, setSelectedDate] = useState(dayjs());
+    const user = useSelector((state) => state.auth.user);
+    console.log(user)
 
     return (
         <div>

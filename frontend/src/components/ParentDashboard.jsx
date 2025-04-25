@@ -27,6 +27,7 @@ import { fetchAllTherapists } from "../Slices/GetSlice";
 import { bookAppointment } from "../Slices/SetSlice";
 import dayjs from "dayjs";
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from "react-redux";
 import ParentNavbar from "./parentNavbar";
 
 
@@ -39,6 +40,8 @@ const ParentDashboard = () => {
     const [selectedTime, setSelectedTime] = useState('');
     const [selectedChild, setSelectedChild] = useState('');
     const children = ["John Doe", "Jane Smith", "Alice Johnson"];
+    const user = useSelector((state) => state.auth.user);
+    console.log(user)
 
     useEffect(() => {
         fetchAllTherapists(setTherapists);

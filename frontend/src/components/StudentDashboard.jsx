@@ -22,14 +22,19 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import { fetchAllTherapists } from "../Slices/GetSlice"
 import { bookAppointment } from "../Slices/SetSlice";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import dayjs from "dayjs";
 
 
 const StudentDashboard = () => {
+    const navigate = useNavigate();
     const [selectedDate, setSelectedDate] = useState(dayjs());
     const [therapists, setTherapists] = useState([]);
     const [selectedTherapistId, setSelectedTherapistId] = useState(null);
     const [selectedTime, setSelectedTime] = useState('');
+    const user = useSelector((state) => state.auth.user);
+    console.log(user)
 
     useEffect(() => {
         fetchAllTherapists(setTherapists);
@@ -40,9 +45,9 @@ const StudentDashboard = () => {
             alert("Please select a therapist and time.");
             return;
         }
-    
+
         const appointmentData = {
-            student_id: 1,  // Replace with actual student_id from auth or context
+            student_id: user.user_id,
             therapist_id: selectedTherapistId,
             date: selectedDate.format("YYYY-MM-DD"),
             time: selectedTime,

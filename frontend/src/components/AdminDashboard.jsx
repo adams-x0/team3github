@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
     Container,
     Typography,
@@ -13,10 +13,6 @@ import {
     TextField,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
-import dayjs from "dayjs";
 import { useNavigate } from 'react-router-dom';
 import AdminNavbar from "./adminNavbar";
 import Badge from '@mui/material/Badge';
@@ -37,7 +33,6 @@ const openComplaints = 5
 
 const AdminDashboard = () => {
     const navigate = useNavigate()
-    const [selectedDate, setSelectedDate] = useState(dayjs());
 
     return (
         <div>
@@ -63,7 +58,6 @@ const AdminDashboard = () => {
                             View Complaints / Tickets
                         </Button>
                     </Box>
-    
                     {/* Approve Therapist Requests Accordion */}
                     <Accordion defaultExpanded sx={{ mb: 5 }}>
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -162,8 +156,6 @@ const AdminDashboard = () => {
 
                         </AccordionDetails>
                     </Accordion>
-    
-    
                     {/* Find Student / Therapist */}
                     <Accordion sx={{ mb: 5 }}>
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -203,7 +195,7 @@ const AdminDashboard = () => {
                 </Box>
             </Container>
         </div>
-    );    
+    );
 };
 
 export default AdminDashboard;
