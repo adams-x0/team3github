@@ -162,7 +162,26 @@ def add_user():
         cursor.close()
         conn.close()
 
-        return jsonify({"message": "User registered", "user_id": user_id}), 201
+        user_response = {
+            "user_id": user_id,
+            "first_name": first_name,
+            "last_name": last_name,
+            "email": email,
+            "phone": phone,
+            "role": role,
+            "address": address,
+            "dob": dob,
+        }
+
+        if role == "therapist":
+            user_response.update({
+                "license_number": license_number,
+                "specialization": specialization,
+                "is_verified": is_verified
+            })
+
+        return jsonify({"user": user_response}), 201
+
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
