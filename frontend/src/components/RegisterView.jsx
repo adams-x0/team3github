@@ -107,8 +107,12 @@ const Register = () => {
         if (formData.password !== formData.confirmPassword) return;
     
         const { dobYear, dobMonth, dobDay } = formData.dateFields;
-        const dob = `${dobYear}-${dobMonth.padStart(2, '0')}-${dobDay.padStart(2, '0')}`;
-    
+
+        let dob = null;
+        if (dobYear && dobMonth && dobDay) { 
+            dob = `${dobYear}-${dobMonth.padStart(2, '0')}-${dobDay.padStart(2, '0')}`;
+        }
+        
         const fullFormData = {
             ...formData,
             dob: dob,
