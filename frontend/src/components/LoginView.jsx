@@ -39,11 +39,16 @@ useEffect(() => {
   }
 }, [user, navigate]);
 
-const handleNext = (e) => {
+const handleNext = async (e) => {
   e.preventDefault();
 
   if (newLogin.email && newLogin.password) {
-    dispatch(loginUser(newLogin));
+    try {
+        const user = await dispatch(loginUser({ ...newLogin, isAdmin: true })).unwrap();
+    }
+    catch (error) {
+      console.error('Login failed:', error);
+    }
   }
 };
 
