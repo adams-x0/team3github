@@ -43,6 +43,19 @@ const ParentDashboard = () => {
     const user = useSelector((state) => state.auth.user);
     console.log(user)
 
+    useEffect(() => { 
+        if (!user) {
+            navigate('/login');
+        } else if (user.role !== 'guardian') {
+            navigate('/login');
+        }
+    }, [user, navigate]);
+
+    if (!user) {
+        return <div>Loading...</div>;
+    }
+    
+
     useEffect(() => {
         fetchAllTherapists(setTherapists);
     }, [setTherapists]);
@@ -90,7 +103,8 @@ const ParentDashboard = () => {
             <Container>
                 <Box pb={8}>
                     <Typography variant="h4" align="center" gutterBottom mt={4}>
-                        Welcome to the Parent Dashboard
+                        Welcome, {user.first_name} {user.last_name}
+
                     </Typography>
     
                     {/* Add Child Section */}

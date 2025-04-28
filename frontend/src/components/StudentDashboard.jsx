@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import StudentNavbar from "./studentNavbar";
 import {
     Container,
@@ -36,6 +36,17 @@ const StudentDashboard = () => {
     const user = useSelector((state) => state.auth.user);
     console.log(user)
 
+    useEffect(() => { 
+        if (!user) {
+            navigate('/login');
+        } else if (user.role !== 'student') {
+            navigate('/login');
+        }
+    }, [user, navigate]);
+
+    if (!user) {
+        return <div>Loading...</div>;
+    }
     useEffect(() => {
         fetchAllTherapists(setTherapists);
     }, [setTherapists]);
@@ -77,13 +88,15 @@ const StudentDashboard = () => {
         }
     }
 
+
+
     return (
         <div>
             <StudentNavbar />
             <Container>
                 <Box pb={8}>
                     <Typography variant="h4" align="center" gutterBottom mt={4}>
-                        Welcome to the Student Dashboard
+                        Welcome, {user.first_name} {user.last_name}
                     </Typography>
 
                 {/* Book a Session */}
