@@ -21,6 +21,7 @@ import {
     TableRow,
     TableCell,
     TableBody,
+    MenuItem,
     TableContainer,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -48,6 +49,9 @@ const StudentDashboard = () => {
     const [selectedTime, setSelectedTime] = useState('');
     const [sortBy, setSortBy] = useState('first_name'); // Default sorting by first name
     const [sortOrder, setSortOrder] = useState('asc'); // Default sorting order
+    const [availableTimes, setAvailableTimes] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [selectedSpecialization, setSelectedSpecialization] = useState('');
     const user = useSelector((state) => state.auth.user);
 
     useEffect(() => { 
@@ -65,6 +69,8 @@ const StudentDashboard = () => {
         fetchAllTherapists(setTherapists);
     }, [setTherapists]);
 
+    const allSpecializations = [...new Set(therapists.map(t => t.specialization))];
+
     const handleSort = (column) => {
         if (sortBy === column) {
             setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
@@ -74,7 +80,23 @@ const StudentDashboard = () => {
         }
     };
 
-    const sortedTherapists = [...therapists].sort((a, b) => { 
+    const trimmedQuery = searchQuery.trim().toLowerCase();
+
+    let filteredTherapists = therapists;
+
+    if (selectedSpecialization !== '') {
+        filteredTherapists = therapists.filter(
+            (therapist) => therapist.specialization === selectedSpecialization
+        );
+    } else if (trimmedQuery !== '') {
+        filteredTherapists = therapists.filter((therapist) => {
+            const fullName = `${therapist.first_name} ${therapist.last_name}`.toLowerCase();
+            return fullName.includes(trimmedQuery);
+        });
+    }
+
+
+    const sortedTherapists = [...filteredTherapists].sort((a, b) => { 
         if (a[sortBy] < b[sortBy]) return sortOrder === 'asc' ? -1 : 1;
         if (a[sortBy] > b[sortBy]) return sortOrder === 'asc' ? 1 : -1;
         return 0;
@@ -97,16 +119,21 @@ const StudentDashboard = () => {
         return isPast || isOutOfRange || isUnavailable;
     }
 
-    const dayOfWeek = selectedDate ? selectedDate.format('dddd') : null;
-    let availableTimes = [];
-    if (selectedTherapist && selectedTherapist.availability) {
-        try {
-            const availabilityObj = JSON.parse(selectedTherapist.availability);
-            availableTimes = availabilityObj[dayOfWeek] || [];
-        } catch (err) {
-            console.error('Failed to parse availability JSON:', err);
+    const handleDateChange = (newValue) => {
+        setSelectedDate(newValue);
+        const dayOfWeek = newValue.format('dddd');
+        if (selectedTherapist && selectedTherapist.availability) {
+            try {
+                const availabilityObj = JSON.parse(selectedTherapist.availability);
+                setAvailableTimes(availabilityObj[dayOfWeek] || []);
+            } catch (error) {
+                console.error("Error parsing availability:", error);
+                setAvailableTimes([]); // Reset available times if there's an error
+            }
         }
-    }
+        
+    };
+
 
     const handleBookSession = async () => {
         if (!selectedTherapistId || !selectedTime) {
@@ -150,19 +177,58 @@ const StudentDashboard = () => {
                                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                                     <DateCalendar
                                         value={selectedDate}
-                                        onChange={(newValue) => setSelectedDate(newValue)}
+                                        onChange={handleDateChange}
                                         shouldDisableDate={shouldDisableDate}
                                     />
                                 </LocalizationProvider>
+
+                                {selectedTherapist && availableTimes.length > 0 && (
+                                    <Box mt={3}>
+                                        <Typography variant="subtitle1">Available Times:</Typography>
+                                        {availableTimes.map((time) => (
+                                            <Button
+                                                key={time}
+                                                variant={selectedTime === time ? "contained" : "outlined"}
+                                                sx={{ m: 0.5 }}
+                                                onClick={() => setSelectedTime(time)}
+                                            >
+                                                {time}
+                                            </Button>
+                                        ))}
+                                    </Box>
+                                )}
                             </Box>
 
+                            <Typography variant="h6" mb={2}>
+                                Find a Therapist
+                            </Typography>
+
+                            {/* Search Field */}
+                            <TextField
+                                label="Search Therapist by Name"
+                                variant="outlined"
+                                fullWidth
+                                margin="normal"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+
+                            <TextField
+                                select
+                                label="Filter by Specialization"
+                                value={selectedSpecialization}
+                                onChange={(e) => setSelectedSpecialization(e.target.value)}
+                                fullWidth
+                                margin="normal"
+                            >
+                                <MenuItem value="">All Specializations</MenuItem>
+                                {allSpecializations.map((spec, idx) => (
+                                    <MenuItem key={idx} value={spec}>{spec}</MenuItem>
+                                ))}
+                            </TextField>
+
                             {/* Therapist Table */}
-                            <box flexGrow={1}>
-
-                                <Typography variant="h6" mb={2}>
-                                    Find a Therapist
-                                </Typography>
-
+                            <Box flexGrow={1}>
                                 <TableContainer component={Paper}>
                                     <Table>
                                         <TableHead>
@@ -205,7 +271,7 @@ const StudentDashboard = () => {
                                         </TableBody>
                                     </Table>
                                 </TableContainer>
-                            </box>
+                            </Box>
                             <Box mt={2}>
                                 <Button variant="contained" color="primary" onClick={handleBookSession}>
                                     Book Session
