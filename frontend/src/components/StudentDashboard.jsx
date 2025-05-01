@@ -1,4 +1,4 @@
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import StudentNavbar from "./studentNavbar";
 import {
     Container,
@@ -12,9 +12,6 @@ import {
     ListItem,
     ListItemText,
     TextField,
-    Radio,
-    RadioGroup,
-    FormControlLabel,
     Paper,
     Table,
     TableHead,
@@ -54,20 +51,18 @@ const StudentDashboard = () => {
     const [selectedSpecialization, setSelectedSpecialization] = useState('');
     const user = useSelector((state) => state.auth.user);
 
-    useEffect(() => { 
+    useEffect(() => {
+        fetchAllTherapists(setTherapists)
         if (!user) {
             navigate('/login');
         } else if (user.role !== 'student') {
             navigate('/login');
         }
-    }, [user, navigate]);
+    }, [user, navigate, setTherapists]);
 
     if (!user) {
         return <div>Loading...</div>;
     }
-    useEffect(() => {
-        fetchAllTherapists(setTherapists);
-    }, [setTherapists]);
 
     const allSpecializations = [...new Set(therapists.map(t => t.specialization))];
 
