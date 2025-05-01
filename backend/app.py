@@ -61,7 +61,9 @@ def create_tables():
                 license_number VARCHAR(100),
                 specialization VARCHAR(255),
                 isVerified BOOLEAN DEFAULT FALSE,
-                availability JSON,
+                default_availability JSON,
+                weekly_availability JSON,
+                session_duration ENUM('30', '45', '60') DEFAULT '60',
                 FOREIGN KEY (user_id) REFERENCES Users(user_id)
             )
         """)
@@ -259,26 +261,65 @@ def get_therapists():
 
     return jsonify(therapists)
 
-@app.route('/updateAvailability', methods=['POST'])
-def update_availability():
-    data = request.get_json()
-    therapist_id = data['therapist_id']
-    new_availability = data['availability']  # Should be a dict like above
-
+@app.route('/getTherapistAvailabilityByUserId/<int:user_id>', methods=['GET'])
+def get_therapist_availability_by_user_id(user_id):
     connection = get_db_connection()
-    cursor = connection.cursor()
+    cursor = connection.cursor(dictionary=True)
 
-    cursor.execute("""
-        UPDATE Therapists
-        SET availability = %s
-        WHERE therapist_id = %s
-    """, (json.dumps(new_availability), therapist_id))
+    query = """
+        SELECT
+            t.default_availability
+        FROM Therapists t
+        WHERE t.user_id = %s
+    """
+    cursor.execute(query, (user_id,))
+    result = cursor.fetchone()
 
-    connection.commit()
     cursor.close()
     connection.close()
 
-    return jsonify({"message": "Availability updated"}), 200
+    if result and result['default_availability'] is not None:
+        return jsonify({"default_availability": result['default_availability']}), 200
+    else:
+        return jsonify({'error': 'Therapist not found or availability not set'}), 404
+
+@app.route('/updateAvailability', methods=['POST'])
+def update_availability():
+    try:
+        data = request.get_json()
+
+        user_id = data.get('user_id')
+        new_default_availability = data.get('default_availability')
+
+        if user_id is None or new_default_availability is None:
+            return jsonify({"error": "Missing user_id or default_availability"}), 400
+
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        # Verify that the user exists as a therapist
+        cursor.execute("SELECT therapist_id FROM Therapists WHERE user_id = %s", (user_id,))
+        therapist = cursor.fetchone()
+
+        if therapist is None:
+            return jsonify({"error": "Therapist not found for given user_id"}), 404
+
+        # Perform update
+        cursor.execute("""
+            UPDATE Therapists
+            SET default_availability = %s
+            WHERE user_id = %s
+        """, (json.dumps(new_default_availability), user_id))
+
+        connection.commit()
+        cursor.close()
+        connection.close()
+
+        return jsonify({"message": "Availability updated"}), 200
+
+    except Exception as e:
+        print("Error updating availability:", str(e))
+        return jsonify({"error": "Internal server error"}), 500
 
 @app.route('/bookAppointment', methods=['POST'])
 def book_appointment():
