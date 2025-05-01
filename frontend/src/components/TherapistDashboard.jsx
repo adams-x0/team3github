@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import {
     Container,
     Typography,
@@ -55,6 +55,17 @@ const TherapistDashboard = () => {
         defaultAvailability?.default_availability && setEvents(JSON.parse(defaultAvailability?.default_availability))
     }, [defaultAvailability, calendarType]);
     
+    useEffect(() => { 
+        if (!user) {
+            navigate('/login');
+        } else if (user.role !== 'therapist') {
+            navigate('/login');
+        }
+    }, [user, navigate]);
+
+    if (!user) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <div>
@@ -62,7 +73,7 @@ const TherapistDashboard = () => {
             <Container>
                 <Box pb={8}>
                     <Typography variant="h4" align="center" gutterBottom mt={4}>
-                        Welcome to the Therapist Dashboard
+                        Welcome, {user.first_name} {user.last_name}
                     </Typography>
 
                     {/* Calendar to Select Day */}

@@ -3,6 +3,8 @@ from flask_cors import CORS  # type: ignore
 import bcrypt  # type: ignore
 import mysql.connector  # type: ignore
 import json
+import html
+from flask_mail import Mail, Message
 
 app = Flask(__name__)
 CORS(app)  # Allow frontend to make requests
@@ -104,24 +106,34 @@ def add_user():
     role = data['role'].lower()
     phone = data.get('phone', '')
     address = data.get('address', '')
-    date_fields = data.get('dateFields', {})
+    dob = data.get('dob', None) 
     license_number = data.get('licenseNumber', '') # Needs implementation on frontend
     specialization = data.get('specialization', '') # ditto
     is_verified = data.get('isVerified', False) #ditto
 
-    # Format DOB
-    dob = None
-    try:
-        dob_month = int(date_fields.get('dobMonth', 0))
-        dob_day = int(date_fields.get('dobDay', 0))
-        dob_year = int(date_fields.get('dobYear', 0))
-        if dob_year and dob_month and dob_day:
-            dob = f"{dob_year:04d}-{dob_month:02d}-{dob_day:02d}"
-    except Exception:
-        pass  # leave dob as None if parsing fails
+    # Sanitize only string fields
+    def safe_escape(value):
+        if isinstance(value, str) and value.strip():
+            return html.escape(value)  
+        return value
+    
+    # check for html injection
+    email = safe_escape(email)
+    password = safe_escape(password)
+    first_name = safe_escape(first_name)
+    last_name = safe_escape(last_name)
+    role = safe_escape(role)
+    phone = safe_escape(phone)
+    address = safe_escape(address)
+    dob = safe_escape(dob)
+    license_number = safe_escape(license_number)
+    specialization = safe_escape(specialization)
+    is_verified = safe_escape(is_verified)
 
     # Hash the password
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+
 
     try:
         conn = get_db_connection()
@@ -207,41 +219,6 @@ def login():
         if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
             user.pop('password', None)
             return jsonify({'message': 'Login successful', 'user': user}), 200
-        else:
-            return jsonify({'error': 'Invalid email or password'}), 401
-
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-    finally:
-        try:
-            cursor.close()
-            conn.close()
-        except:
-            pass
-
-
-@app.route('/admin-login', methods=['POST'])
-def admin_login():
-    try:
-        data = request.get_json()
-
-        email = data.get('email')
-        password = data.get('password')
-
-        if not email or not password:
-            return jsonify({'error': 'Email and password are required'}), 400
-
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
-
-        cursor.execute("SELECT * FROM Admins WHERE username = %s", (email,))
-        admin = cursor.fetchone()
-
-        # if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
-        if admin and password == admin['password']:
-            admin.pop('password', None)
-            return jsonify({'message': 'Login successful', 'user': admin}), 200
         else:
             return jsonify({'error': 'Invalid email or password'}), 401
 

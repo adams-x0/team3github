@@ -50,10 +50,9 @@ export const fetchTherapistAvailabilityByUserId = createAsyncThunk(
 // Async thunk for logging in
 export const loginUser = createAsyncThunk(
   'auth/loginUser',
-  async ({ email, password, isAdmin = false }, { rejectWithValue }) => {
-    const endpoint = isAdmin ? '/admin-login' : '/login';
+  async ({ email, password }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${BASE_URL}${endpoint}`, { email, password });
+      const response = await axios.post(`${BASE_URL}/login`, { email, password });
       return response.data.user;
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || 'Login failed');

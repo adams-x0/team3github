@@ -1,4 +1,4 @@
-import React from "react";
+import React, { use, useEffect, useState } from "react";
 import {
     Container,
     Typography,
@@ -17,6 +17,7 @@ import { useNavigate } from 'react-router-dom';
 import AdminNavbar from "./adminNavbar";
 import Badge from '@mui/material/Badge';
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import { useSelector } from "react-redux";
 
 import {
     Table,
@@ -33,6 +34,19 @@ const openComplaints = 5
 
 const AdminDashboard = () => {
     const navigate = useNavigate()
+    const user = useSelector((state) => state.auth.user);
+
+    useEffect(() => { 
+        if (!user) {
+            navigate('/login');
+        } else if (user.role !== 'admin') {
+            navigate('/login');
+        }
+    }, [user, navigate]);
+    
+    if (!user) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <div>
@@ -40,7 +54,8 @@ const AdminDashboard = () => {
             <Container>
                 <Box pb={8}>
                     <Typography variant="h4" align="center" gutterBottom mt={4}>
-                        Welcome to the Admin Dashboard
+                        Welcome, {user.first_name} {user.last_name}
+
                     </Typography>
 
                     {/* View Complaints */}
