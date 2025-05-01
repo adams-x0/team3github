@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     Container,
     Typography,
@@ -13,21 +13,48 @@ import {
     TextField,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
-import dayjs from "dayjs";
 import { useNavigate } from 'react-router-dom';
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import TherapistNavbar from "./therapistNavbar";
+import { fetchTherapistAvailabilityByUserId, updateDefaultAvailability } from '../Slices/authSlice'
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import interactionPlugin from '@fullcalendar/interaction';
 
 
 
 const TherapistDashboard = () => {
     const navigate = useNavigate()
-    const [selectedDate, setSelectedDate] = useState(dayjs());
+    const dispatch = useDispatch();
     const user = useSelector((state) => state.auth.user);
-    console.log(user)
+    const defaultAvailability = useSelector((state) => state.auth.defaultAvailability);
+    const [events, setEvents] = useState([]);
+    const [calendarType, setCalendarType] = useState('default'); // default or specificDate
+
+    // UseEffect to update backend when events change
+    useEffect(() => {
+        if (calendarType === 'default' && events.length > 0 && user) {
+            const formattedAvailability = events.map(event => ({
+                title: event.title,
+                start: event.start,
+                end: event.end,
+            }));
+            dispatch(updateDefaultAvailability(formattedAvailability));
+        }
+    }, [events, calendarType, user, dispatch]);
+
+    // Fetch therapist availability when the user changes
+    useEffect(() => {
+        if (user) {
+            dispatch(fetchTherapistAvailabilityByUserId(user.user_id));
+        }
+    }, [user, dispatch]);
+
+    useEffect(() => {
+        defaultAvailability?.default_availability && setEvents(JSON.parse(defaultAvailability?.default_availability))
+    }, [defaultAvailability, calendarType]);
+    
 
     return (
         <div>
@@ -37,55 +64,89 @@ const TherapistDashboard = () => {
                     <Typography variant="h4" align="center" gutterBottom mt={4}>
                         Welcome to the Therapist Dashboard
                     </Typography>
-    
+
                     {/* Calendar to Select Day */}
                     <Accordion defaultExpanded sx={{ mb: 5 }}>
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                             <Typography variant="h6">Manage Availability</Typography>
                         </AccordionSummary>
                         <AccordionDetails>
-                            <Box
-                                display="flex"
-                                flexDirection={{ xs: "column", md: "row" }} gap={2} mt={3} 
-                                justifyContent="space-between"
-                            >
-                                {/* Date Picker */}
-                                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                    <DateCalendar
-                                        value={selectedDate}
-                                        onChange={(newValue) => setSelectedDate(newValue)}
-                                    />
-                                </LocalizationProvider>
-    
-                                {/* Action Buttons */}
-                                <Box>
+                            <Box display="flex">
+                                {/* Left Column for Buttons */}
+                                <Box display="flex" flexDirection="column" mr={4}>
                                     <Button
                                         variant="contained"
-                                        color="error"
-                                        fullWidth
-                                        sx={{ mb: 3 }}
-                                    >
-                                        Cancel Availability
+                                        onClick={() => setCalendarType('default')}
+                                        sx={{ mb: 2 }}>
+                                        Show & Change Default Availability
                                     </Button>
-
                                     <Button
                                         variant="contained"
-                                        color="primary"
-                                        fullWidth
-                                    >
-                                        Add Availability
+                                        onClick={() => setCalendarType('specificDate')}>
+                                        Show & Change Specific Date Availability
                                     </Button>
+                                </Box>
 
-                                    <Box mt={3}>
-                                        <Typography variant="subtitle1">
-                                            Available times for {selectedDate.format("MMMM Do, YYYY")}: None
-                                        </Typography>
-                                    </Box>
+                                {/* Right Column for Calendar */}
+                                <Box flex={1}>
+                                    <Typography fontSize={40} fontWeight={2}>
+                                        {calendarType === 'default' ? 'Default Availability Schedule' : 'Weekly Availability Schedule'}
+                                    </Typography>
+                                    {calendarType === 'default' ? <FullCalendar
+                                        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                                        themeSystem="bootstrap5"
+                                        initialView="timeGridWeek"  // Use dayGridWeek for week view without dates
+                                        initialDate="2025-01-01"   // Set the start date for the calendar (generic week)
+                                        selectable={true}
+                                        editable={true}
+                                        events={events}
+                                        dayHeaderFormat={{ weekday: 'short' }}  // Show only weekday names
+                                        headerToolbar={{  // Remove navigation controls (previous, next, today)
+                                            left: '',
+                                            center: 'title',
+                                            right: ''
+                                        }}
+                                        eventClick={(info) => {
+                                            alert('Event: ' + info.event.title);
+                                        }}
+                                        select={(info) => {
+                                            const title = 'Available'
+                                            const newEvent = {
+                                                title,
+                                                start: info.startStr,
+                                                end: info.endStr,
+                                            };
+                                            setEvents([...events, newEvent]);
+                                        }}
+                                        height="600px"
+                                    /> :<FullCalendar
+                                        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                                        themeSystem="bootstrap5"
+                                        initialDate="2025-01-01"   // Set the start date for the calendar (generic week)
+                                        initialView="timeGridWeek"
+                                        selectable={true}
+                                        editable={true}
+                                        events={events}
+                                        select={(info) => {
+                                            const title = prompt('Enter session title:');
+                                            if (title) {
+                                                const newEvent = {
+                                                    title,
+                                                    start: info.startStr,
+                                                    end: info.endStr,
+                                                };
+                                                setEvents([...events, newEvent]);
+                                        }
+                                        }}
+                                        eventClick={(info) => {
+                                            alert('Event: ' + info.event.title);
+                                        }}
+                                        height="600px"
+                                    />}
                                 </Box>
                             </Box>
                         </AccordionDetails>
                     </Accordion>
-    
                     {/* Manage Appointments */}
                     <Accordion sx={{ mb: 5 }}>
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -93,11 +154,9 @@ const TherapistDashboard = () => {
                         </AccordionSummary>
                         <AccordionDetails>
                             {/* Filters */}
-
-                                <Typography variant="subtitle1" gutterBottom>
-                                Filter by date</Typography>
-
-
+                            <Typography variant="subtitle1" gutterBottom>
+                                Filter by date
+                            </Typography>
                             {/* List of Appointments */}
                             <List>
                                 {/* Sample Appointment 1 */}
@@ -170,7 +229,6 @@ const TherapistDashboard = () => {
 
                         </AccordionDetails>
                     </Accordion>
-    
                     {/* View History */}
                     <Accordion sx={{ mb: 5 }}>
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>

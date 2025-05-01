@@ -41,7 +41,6 @@ const ParentDashboard = () => {
     const [selectedChild, setSelectedChild] = useState('');
     const children = ["John Doe", "Jane Smith", "Alice Johnson"];
     const user = useSelector((state) => state.auth.user);
-    console.log(user)
 
     useEffect(() => {
         fetchAllTherapists(setTherapists);
@@ -54,7 +53,7 @@ const ParentDashboard = () => {
         }
         
         const appointmentData = {
-            student_id: 1,  // Replace with actual student_id from auth or context
+            student_id: 1,  // Child / childId from relationship table
             therapist_id: selectedTherapistId,
             date: selectedDate.format("YYYY-MM-DD"),
             time: selectedTime,

@@ -34,7 +34,6 @@ const StudentDashboard = () => {
     const [selectedTherapistId, setSelectedTherapistId] = useState(null);
     const [selectedTime, setSelectedTime] = useState('');
     const user = useSelector((state) => state.auth.user);
-    console.log(user)
 
     useEffect(() => {
         fetchAllTherapists(setTherapists);
