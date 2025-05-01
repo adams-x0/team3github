@@ -2,3 +2,4 @@ client/
 venv/
 venvMac/
 node_modules/
+server/venvMac
