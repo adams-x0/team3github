@@ -74,6 +74,7 @@ const authSlice = createSlice({
   reducers: {
     logoutUser: (state) => {
       state.user = null;
+      state.defaultAvailability = null; // clear it
       state.loading = false;
       state.error = null;
       localStorage.removeItem('user');
@@ -89,6 +90,7 @@ const authSlice = createSlice({
       // loginUser success
       .addCase(loginUser.fulfilled, (state, action) => {
         state.user = action.payload;
+        state.defaultAvailability = null;
         state.loading = false;
         state.error = null;
         localStorage.setItem('user', JSON.stringify(action.payload));
@@ -106,6 +108,7 @@ const authSlice = createSlice({
       // registerUser success
       .addCase(registerUser.fulfilled, (state, action) => {
         state.user = action.payload;
+        state.defaultAvailability = null;
         state.loading = false;
         state.error = null;
         localStorage.setItem('user', JSON.stringify(action.payload));

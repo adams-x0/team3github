@@ -52,10 +52,20 @@ const TherapistDashboard = () => {
     }, [user, dispatch]);
 
     useEffect(() => {
-        defaultAvailability?.default_availability && setEvents(JSON.parse(defaultAvailability?.default_availability))
+        if (calendarType === 'default' && defaultAvailability?.default_availability) {
+            try {
+                const parsed = JSON.parse(defaultAvailability.default_availability);
+                setEvents(parsed);
+            } catch (err) {
+                console.error("Failed to parse default availability:", err);
+                setEvents([]); // fail gracefully
+            }
+        } else {
+            setEvents([]); // clear events if switching or empty
+        }
     }, [defaultAvailability, calendarType]);
-    
-    useEffect(() => { 
+
+    useEffect(() => {
         if (!user) {
             navigate('/login');
         } else if (user.role !== 'therapist') {
@@ -107,7 +117,7 @@ const TherapistDashboard = () => {
                                         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                                         themeSystem="bootstrap5"
                                         initialView="timeGridWeek"  // Use dayGridWeek for week view without dates
-                                        initialDate="2025-01-01"   // Set the start date for the calendar (generic week)
+                                        initialDate={new Date()}   // Set the start date for the calendar (generic week)
                                         selectable={true}
                                         editable={true}
                                         events={events}
@@ -133,7 +143,7 @@ const TherapistDashboard = () => {
                                     /> :<FullCalendar
                                         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                                         themeSystem="bootstrap5"
-                                        initialDate="2025-01-01"   // Set the start date for the calendar (generic week)
+                                        initialDate={new Date()}   // Set the start date for the calendar (generic week)
                                         initialView="timeGridWeek"
                                         selectable={true}
                                         editable={true}
