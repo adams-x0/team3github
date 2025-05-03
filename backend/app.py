@@ -270,10 +270,10 @@ def get_therapist_availability_by_user_id(user_id):
     cursor.close()
     connection.close()
 
-    if result and result['default_availability'] is not None:
-        return jsonify({"default_availability": result['default_availability']}), 200
+    if result:
+        return jsonify({"default_availability": result['default_availability'] or '[]'}), 200
     else:
-        return jsonify({'error': 'Therapist not found or availability not set'}), 404
+        return jsonify({'error': 'Therapist not found'}), 404
 
 @app.route('/updateAvailability', methods=['POST'])
 def update_availability():
