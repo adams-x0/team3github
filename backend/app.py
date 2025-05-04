@@ -240,11 +240,11 @@ def get_therapists():
             t.license_number,
             t.specialization,
             t.isVerified,
-            t.availability
+            t.default_availability
         FROM Therapists t
         JOIN Users u ON t.user_id = u.user_id
     """
-
+    # Add WHERE t.isVerified = TRUE under join users when therapist verification
     cursor.execute(query)
     therapists = cursor.fetchall()
 
