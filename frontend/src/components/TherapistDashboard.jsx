@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
     Container,
     Typography,
@@ -31,6 +31,7 @@ const TherapistDashboard = () => {
     const defaultAvailability = useSelector((state) => state.auth.defaultAvailability);
     const [events, setEvents] = useState([]);
     const [calendarType, setCalendarType] = useState('default'); // default or specificDate
+    const hasFetchedAvailability = useRef(false);
 
     // UseEffect to update backend when events change
     useEffect(() => {
@@ -46,8 +47,9 @@ const TherapistDashboard = () => {
 
     // Fetch therapist availability when the user changes
     useEffect(() => {
-        if (user) {
+        if (user && !hasFetchedAvailability.current) {
             dispatch(fetchTherapistAvailabilityByUserId(user.user_id));
+            hasFetchedAvailability.current = true;
         }
     }, [user, dispatch]);
 
