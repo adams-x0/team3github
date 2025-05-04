@@ -62,7 +62,7 @@ export const loginUser = createAsyncThunk(
 
 const initialState = {
   user: JSON.parse(localStorage.getItem('user')) || null,
-  defaultAvailability: null,  // Store therapist availability
+  defaultAvailability: JSON.parse(localStorage.getItem('defaultAvailability')) || null,
   loading: false,
   error: null,
 };
@@ -78,6 +78,7 @@ const authSlice = createSlice({
       state.loading = false;
       state.error = null;
       localStorage.removeItem('user');
+      localStorage.removeItem('defaultAvailability');
     },
   },
   extraReducers: (builder) => {
@@ -135,7 +136,8 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchTherapistAvailabilityByUserId.fulfilled, (state, action) => {
-        state.defaultAvailability = action.payload; // Store only the default availability
+        state.defaultAvailability = action.payload;
+        localStorage.setItem('defaultAvailability', JSON.stringify(action.payload));
         state.loading = false;
         state.error = null;
       })
