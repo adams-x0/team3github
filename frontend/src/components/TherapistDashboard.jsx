@@ -14,7 +14,9 @@ import {
     Dialog,
     DialogTitle,
     DialogActions,
-    DialogContent
+    DialogContent,
+    FormControlLabel,
+    Checkbox
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useNavigate } from 'react-router-dom';
@@ -38,6 +40,8 @@ const TherapistDashboard = () => {
     const hasFetchedAvailability = useRef(false);
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [applyToNext5Weeks, setApplyToNext5Weeks] = useState(false);
+    const [isResetModalOpen, setIsResetModalOpen] = useState(false);
 
     //Use Effect updates the Backend with new availability
     useEffect(() => {
@@ -111,9 +115,29 @@ const TherapistDashboard = () => {
                                     </Button>
                                     <Button
                                         variant="contained"
-                                        onClick={() => setCalendarType('specificDate')}>
+                                        color="error"
+                                        onClick={() => setIsResetModalOpen(true)}
+                                    >
+                                        Reset Default Availability
+                                    </Button>
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                            checked={applyToNext5Weeks}
+                                            onChange={() => setApplyToNext5Weeks(!applyToNext5Weeks)}
+                                            />
+                                        }
+                                        label="Repeat for next 5 weeks"
+                                    />
+                                    {/*
+                                    <Button
+                                        variant="contained"
+                                        onClick={() => setCalendarType('specificDate')}
+                                        disabled={true}
+                                    >
                                         Show & Change Specific Date Availability
                                     </Button>
+                                    */}
                                 </Box>
 
                                 {/* Right Column for Calendar */}
@@ -129,27 +153,40 @@ const TherapistDashboard = () => {
                                         selectable={true}
                                         editable={true}
                                         events={events}
-                                        dayHeaderFormat={{ weekday: 'short' }}  // Show only weekday names
-                                        headerToolbar={{  // Remove navigation controls (previous, next, today)
-                                            left: '',
-                                            center: 'title',
-                                            right: ''
-                                        }}
                                         eventClick={(info) => {
                                             setSelectedEvent(info.event);
                                             setIsModalOpen(true);
                                         }}
                                         select={(info) => {
-                                            const title = 'Available'
-                                            const newEvent = {
-                                                title,
-                                                start: info.startStr,
-                                                end: info.endStr,
+                                            const title = 'Available';
+                                            const startDate = new Date(info.start);
+                                            const endDate = new Date(info.end);
+                                            const newEvents = [];
+                                            const generateEvent = (offset) => {
+                                                const start = new Date(startDate);
+                                                const end = new Date(endDate);
+                                                start.setDate(start.getDate() + offset);
+                                                end.setDate(end.getDate() + offset);
+                                                const startStr = start.toISOString();
+                                                const endStr = end.toISOString();
+                                                // Check for existing identical event
+                                                const exists = events.some(
+                                                    (event) => event.start === startStr && event.end === endStr
+                                                );
+                                                if (!exists) {
+                                                    newEvents.push({ title, start: startStr, end: endStr });
+                                                }
                                             };
-                                            setEvents([...events, newEvent]);
+                                            generateEvent(0); // current week
+                                            if (applyToNext5Weeks) {
+                                                for (let i = 1; i <= 5; i++) {
+                                                    generateEvent(i * 7);
+                                                }
+                                            }
+                                            setEvents((prev) => [...prev, ...newEvents]);
                                         }}
                                         height="600px"
-                                    /> :<FullCalendar
+                                    /> : <FullCalendar
                                         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                                         themeSystem="bootstrap5"
                                         initialDate={new Date()}   // Set the start date for the calendar (generic week)
@@ -354,6 +391,27 @@ const TherapistDashboard = () => {
                             }}
                         >
                             Delete
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+                <Dialog open={isResetModalOpen} onClose={() => setIsResetModalOpen(false)}>
+                    <DialogTitle>Confirm Reset</DialogTitle>
+                    <DialogContent>
+                        <Typography>
+                            Are you sure you want to reset all default availability? This cannot be undone.
+                        </Typography>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => setIsResetModalOpen(false)}>Cancel</Button>
+                        <Button
+                        color="error"
+                        onClick={() => {
+                            setEvents([]); // Clear calendar UI
+                            dispatch(updateDefaultAvailability([])); // Update backend
+                            setIsResetModalOpen(false);
+                        }}
+                        >
+                            Confirm
                         </Button>
                     </DialogActions>
                 </Dialog>

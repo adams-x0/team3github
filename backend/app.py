@@ -4,7 +4,7 @@ import bcrypt  # type: ignore
 import mysql.connector  # type: ignore
 import json
 import html
-from flask_mail import Mail, Message
+from flask_mail import Mail, Message  # type: ignore
 
 app = Flask(__name__)
 CORS(app)  # Allow frontend to make requests
