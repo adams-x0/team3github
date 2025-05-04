@@ -39,9 +39,9 @@ const TherapistDashboard = () => {
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // UseEffect to update backend when events change
+    //Use Effect updates the Backend with new availability
     useEffect(() => {
-        if (calendarType === 'default' && events.length > 0 && user) {
+        if (calendarType === 'default' && user) {
             const formattedAvailability = events.map(event => ({
                 title: event.title,
                 start: event.start,
