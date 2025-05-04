@@ -11,6 +11,10 @@ import {
     ListItem,
     ListItemText,
     TextField,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useNavigate } from 'react-router-dom';
@@ -31,8 +35,9 @@ const TherapistDashboard = () => {
     const defaultAvailability = useSelector((state) => state.auth.defaultAvailability);
     const [events, setEvents] = useState([]);
     const [calendarType, setCalendarType] = useState('default'); // default or specificDate
+    const [selectedEvent, setSelectedEvent] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // UseEffect to update backend when events change
     useEffect(() => {
         if (calendarType === 'default' && events.length > 0 && user) {
             const formattedAvailability = events.map(event => ({
@@ -128,7 +133,8 @@ const TherapistDashboard = () => {
                                             right: ''
                                         }}
                                         eventClick={(info) => {
-                                            alert('Event: ' + info.event.title);
+                                            setSelectedEvent(info.event);
+                                            setIsModalOpen(true);
                                         }}
                                         select={(info) => {
                                             const title = 'Available'
@@ -160,7 +166,8 @@ const TherapistDashboard = () => {
                                         }
                                         }}
                                         eventClick={(info) => {
-                                            alert('Event: ' + info.event.title);
+                                            setSelectedEvent(info.event);
+                                            setIsModalOpen(true);
                                         }}
                                         height="600px"
                                     />}
@@ -283,8 +290,7 @@ const TherapistDashboard = () => {
                                 </ListItem>
                             </List>
                         </AccordionDetails>
-                    </Accordion>
-    
+                    </Accordion> 
                     {/* Find Student */}
                     <Accordion sx={{ mb: 5 }}>
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -321,6 +327,33 @@ const TherapistDashboard = () => {
                         </AccordionDetails>
                     </Accordion>
                 </Box>
+                <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)}>
+                    <DialogTitle>Delete Availability</DialogTitle>
+                    <DialogContent>
+                        <Typography>
+                        Are you sure you want to delete this availability?
+                        </Typography>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => setIsModalOpen(false)}>Cancel</Button>
+                        <Button
+                            color="error"
+                            variant="contained"
+                            onClick={() => {
+                                setEvents(events.filter(
+                                e => !(
+                                    new Date(e.start).getTime() === new Date(selectedEvent.start).getTime() &&
+                                    new Date(e.end).getTime() === new Date(selectedEvent.end).getTime()
+                                )
+                                ));
+                                setIsModalOpen(false);
+                            }}
+                        >
+                            Delete
+                        </Button>
+
+                    </DialogActions>
+                </Dialog>
             </Container>
         </div>
     );    
