@@ -313,6 +313,44 @@ def update_availability():
         print("Error updating availability:", str(e))
         return jsonify({"error": "Internal server error"}), 500
 
+@app.route('/getPendingTherapists', methods=['GET'])
+def get_pending_therapists():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT t.therapist_id, u.first_name, u.last_name, u.email, t.license_number, t.specialization
+        FROM Therapists t
+        JOIN Users u ON t.user_id = u.user_id
+        WHERE t.isVerified = FALSE
+    """)
+    pending_therapists = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return jsonify(pending_therapists), 200
+    
+@app.route('/verifyTherapist', methods=['POST'])
+def verify_therapist():
+    data = request.get_json()
+    therapist_id = data.get('therapist_id')
+
+    if not therapist_id:
+        return jsonify({'error': 'therapist_id is required'}), 400
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("UPDATE Therapists SET isVerified = TRUE WHERE therapist_id = %s", (therapist_id,))
+    conn.commit()
+
+    cursor.close()
+    conn.close()
+
+    return jsonify({'message': 'Therapist verified successfully'}), 200
+
+
 @app.route('/bookAppointment', methods=['POST'])
 def book_appointment():
     data = request.get_json()
