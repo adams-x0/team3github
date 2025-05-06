@@ -239,7 +239,8 @@ def get_therapists():
             t.license_number,
             t.specialization,
             t.isVerified,
-            t.default_availability
+            t.default_availability,
+            t.session_duration
         FROM Therapists t
         JOIN Users u ON t.user_id = u.user_id
     """

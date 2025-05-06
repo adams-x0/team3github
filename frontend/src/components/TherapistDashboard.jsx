@@ -40,7 +40,6 @@ const TherapistDashboard = () => {
     const user = useSelector((state) => state.auth.user);
     const defaultAvailability = useSelector((state) => state.auth.defaultAvailability);
     const [events, setEvents] = useState([]);
-    const [calendarType, setCalendarType] = useState('default'); // default or specificDate
     const hasFetchedAvailability = useRef(false);
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -50,7 +49,7 @@ const TherapistDashboard = () => {
 
     //Use Effect updates the Backend with new availability
     useEffect(() => {
-        if (calendarType === 'default' && user) {
+        if (user) {
             const formattedAvailability = events.map(event => ({
                 title: event.title,
                 start: event.start,
@@ -58,7 +57,7 @@ const TherapistDashboard = () => {
             }));
             dispatch(updateDefaultAvailability(formattedAvailability));
         }
-    }, [events, calendarType, user, dispatch]);
+    }, [events, user, dispatch]);
 
     // Fetch therapist availability when the user changes
     useEffect(() => {
@@ -69,7 +68,7 @@ const TherapistDashboard = () => {
     }, [user, dispatch]);
 
     useEffect(() => {
-        if (calendarType === 'default' && defaultAvailability?.default_availability) {
+        if (defaultAvailability?.default_availability) {
             try {
                 const parsed = JSON.parse(defaultAvailability.default_availability);
                 setEvents(parsed);
@@ -80,7 +79,7 @@ const TherapistDashboard = () => {
         } else {
             setEvents([]); // clear events if switching or empty
         }
-    }, [defaultAvailability, calendarType]);
+    }, [defaultAvailability]);
 
     useEffect(() => {
         if (!user) {
@@ -102,7 +101,6 @@ const TherapistDashboard = () => {
                     <Typography variant="h4" align="center" gutterBottom mt={4}>
                         Welcome, {user.first_name} {user.last_name}
                     </Typography>
-
                     {/* Calendar to Select Day */}
                     <Accordion defaultExpanded sx={{ mb: 5 }}>
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -140,23 +138,13 @@ const TherapistDashboard = () => {
                                         }
                                         label="Repeat for next 5 weeks"
                                     />
-                                    {/*
-                                    <Button
-                                        variant="contained"
-                                        onClick={() => setCalendarType('specificDate')}
-                                        disabled={true}
-                                    >
-                                        Show & Change Specific Date Availability
-                                    </Button>
-                                    */}
                                 </Box>
-
                                 {/* Right Column for Calendar */}
                                 <Box flex={1}>
                                     <Typography fontSize={40} fontWeight={2}>
-                                        {calendarType === 'default' ? 'Default Availability Schedule' : 'Weekly Availability Schedule'}
+                                        Default Availability Schedule
                                     </Typography>
-                                    {calendarType === 'default' ? <FullCalendar
+                                    <FullCalendar
                                         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                                         themeSystem="bootstrap5"
                                         initialView="timeGridWeek"  // Use dayGridWeek for week view without dates
@@ -197,31 +185,7 @@ const TherapistDashboard = () => {
                                             setEvents((prev) => [...prev, ...newEvents]);
                                         }}
                                         height="600px"
-                                    /> : <FullCalendar
-                                        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-                                        themeSystem="bootstrap5"
-                                        initialDate={new Date()}   // Set the start date for the calendar (generic week)
-                                        initialView="timeGridWeek"
-                                        selectable={true}
-                                        editable={true}
-                                        events={events}
-                                        select={(info) => {
-                                            const title = prompt('Enter session title:');
-                                            if (title) {
-                                                const newEvent = {
-                                                    title,
-                                                    start: info.startStr,
-                                                    end: info.endStr,
-                                                };
-                                                setEvents([...events, newEvent]);
-                                        }
-                                        }}
-                                        eventClick={(info) => {
-                                            setSelectedEvent(info.event);
-                                            setIsModalOpen(true);
-                                        }}
-                                        height="600px"
-                                    />}
+                                    />
                                 </Box>
                             </Box>
                         </AccordionDetails>
@@ -269,7 +233,6 @@ const TherapistDashboard = () => {
                             </List>
                         </AccordionDetails>
                     </Accordion>
-
                     {/* Pending Appointment Request */}
                     <Accordion sx={{ mb: 5 }}>
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -342,7 +305,6 @@ const TherapistDashboard = () => {
                             </List>
                         </AccordionDetails>
                     </Accordion>
-    
                     {/* Find Student */}
                     <Accordion sx={{ mb: 5 }}>
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -428,7 +390,7 @@ const TherapistDashboard = () => {
                 </Dialog>
             </Container>
         </div>
-    );    
+    );
 };
 
 export default TherapistDashboard;

@@ -20,6 +20,10 @@ import {
     TableBody,
     MenuItem,
     TableContainer,
+    Dialog,
+    DialogContent,
+    DialogTitle,
+    Grid
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
@@ -50,6 +54,7 @@ const StudentDashboard = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedSpecialization, setSelectedSpecialization] = useState('');
     const user = useSelector((state) => state.auth.user);
+    const [openTimesModal, setOpenTimesModal] = useState(false);
 
     useEffect(() => {
         fetchAllTherapists(setTherapists)
@@ -101,34 +106,70 @@ const StudentDashboard = () => {
         (therapist) => String(therapist.therapist_id) === String(selectedTherapistId)
     );
 
-    const availableDays = selectedTherapist ? Object.keys(JSON.parse(selectedTherapist.availability || '{}')) : [];
+    const availableDates = selectedTherapist ? new Set(JSON.parse(selectedTherapist.default_availability || '[]')
+    .map(slot =>
+            dayjs(slot.start).format('YYYY-MM-DD')
+        )
+        ) : new Set();
 
-    const currentMonday = dayjs().startOf('isoWeek');
-    const twoWeeksLater = currentMonday.add(13, 'day');
-
-    const shouldDisableDate = (date) => { 
+    const shouldDisableDate = (date) => {
         const isPast = date.isBefore(dayjs(), 'day');
-        const isOutOfRange = !date.isBetween(currentMonday.subtract(1, 'day'), twoWeeksLater.add(1, 'day'), null, '[]'); 
-        const dayName = date.format('dddd');
-        const isUnavailable = !availableDays.includes(dayName);
-        return isPast || isOutOfRange || isUnavailable;
-    }
+        const isNotAvailable = !availableDates.has(date.format('YYYY-MM-DD'));
+        return isPast || isNotAvailable;
+    };
 
     const handleDateChange = (newValue) => {
         setSelectedDate(newValue);
-        const dayOfWeek = newValue.format('dddd');
-        if (selectedTherapist && selectedTherapist.availability) {
+        const selectedDateStr = newValue.format('YYYY-MM-DD');
+    
+        if (selectedTherapist) {
             try {
-                const availabilityObj = JSON.parse(selectedTherapist.availability);
-                setAvailableTimes(availabilityObj[dayOfWeek] || []);
+                const availabilityArray = JSON.parse(selectedTherapist.default_availability || '[]');
+                const sessionDuration = parseInt(selectedTherapist.session_duration || "60", 10);
+    
+                const matchingSlots = availabilityArray.filter(slot =>
+                    dayjs(slot.start).format('YYYY-MM-DD') === selectedDateStr
+                );
+    
+                let generatedSlots = [];
+    
+                matchingSlots.forEach(slot => {
+                    let current = dayjs(slot.start);
+                    const end = dayjs(slot.end);
+    
+                    while (current.isBefore(end) || current.isSame(end)) {
+                        const sessionEnd = current.add(sessionDuration, 'minute');
+    
+                        if (sessionEnd.isAfter(end)) break;
+    
+                        const minute = current.minute();
+                        const isValidStart =
+                            sessionDuration === 45 ? minute % 15 === 0 :
+                            sessionDuration === 30 ? minute % 30 === 0 :
+                            sessionDuration === 60 ? minute === 0 :
+                            false;
+    
+                        if (isValidStart) {
+                            generatedSlots.push(current.format('HH:mm'));
+                            // ⬅️ For 45-min sessions, move to next block only after 45 mins
+                            current = current.add(sessionDuration, 'minute');
+                        } else {
+                            // ⬅️ Otherwise just move forward by 15 mins
+                            current = current.add(15, 'minute');
+                        }
+                    }
+                });
+    
+                setAvailableTimes(generatedSlots);
+                setOpenTimesModal(true);
             } catch (error) {
-                console.error("Error parsing availability:", error);
-                setAvailableTimes([]); // Reset available times if there's an error
+                console.error("Error parsing default_availability or generating slots:", error);
+                setAvailableTimes([]);
+                setOpenTimesModal(false);
             }
         }
-        
     };
-
+    
 
     const handleBookSession = async () => {
         if (!selectedTherapistId || !selectedTime) {
@@ -167,33 +208,16 @@ const StudentDashboard = () => {
                             <Typography variant="h6">Book a Session</Typography>
                         </AccordionSummary>
                         <AccordionDetails>
-                            <Box display="flex" flexDirection={{ xs: "column", md: "row" }} justifyContent="space-between">
-                                {/* Date Picker */}
-                                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                    <DateCalendar
-                                        value={selectedDate}
-                                        onChange={handleDateChange}
-                                        shouldDisableDate={shouldDisableDate}
-                                    />
-                                </LocalizationProvider>
-
-                                {selectedTherapist && availableTimes.length > 0 && (
-                                    <Box mt={3}>
-                                        <Typography variant="subtitle1">Available Times:</Typography>
-                                        {availableTimes.map((time) => (
-                                            <Button
-                                                key={time}
-                                                variant={selectedTime === time ? "contained" : "outlined"}
-                                                sx={{ m: 0.5 }}
-                                                onClick={() => setSelectedTime(time)}
-                                            >
-                                                {time}
-                                            </Button>
-                                        ))}
-                                    </Box>
-                                )}
-                            </Box>
-
+                        <Box display="flex" flexDirection={{ xs: "column", md: "row" }} justifyContent="space-between">
+                            {/* ✅ Always show calendar */}
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DateCalendar
+                                    value={selectedDate}
+                                    onChange={handleDateChange}
+                                    shouldDisableDate={shouldDisableDate}
+                                />
+                            </LocalizationProvider>
+                        </Box>
                             <Typography variant="h6" mb={2}>
                                 Find a Therapist
                             </Typography>
@@ -229,7 +253,7 @@ const StudentDashboard = () => {
                                         <TableHead>
                                             <TableRow>
                                                 <TableCell onClick={() => handleSort('first_name')} style={{ cursor: 'pointer' }}>
-                                                     First Name {sortBy === 'first_name' && (sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" /> : <ArrowDownwardIcon fontSize="small" />)}
+                                                    First Name {sortBy === 'first_name' && (sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" /> : <ArrowDownwardIcon fontSize="small" />)}
                                                 </TableCell>
                                                 <TableCell onClick={() => handleSort('last_name')} style={{ cursor: 'pointer' }}>
                                                     Last Name {sortBy === 'last_name' && (sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" /> : <ArrowDownwardIcon fontSize="small" />)}
@@ -256,9 +280,8 @@ const StudentDashboard = () => {
                                                         <Button
                                                             onClick={() => setSelectedTherapistId(therapist.therapist_id)}
                                                             variant={selectedTherapistId === therapist.therapist_id ? "contained" : "outlined"}
-                                                            
                                                         >
-                                                            Select  
+                                                            Select
                                                         </Button>
                                                     </TableCell>
                                                 </TableRow>
@@ -327,9 +350,81 @@ const StudentDashboard = () => {
                         </List>
                     </AccordionDetails>
                 </Accordion>
-
-                
                 </Box>
+                <Dialog open={openTimesModal} onClose={() => setOpenTimesModal(false)} fullWidth maxWidth="sm">
+                    <DialogTitle>Select a Time</DialogTitle>
+                    <DialogContent>
+                        {/* Time Selection */}
+                        <Grid container spacing={2}>
+                        {availableTimes.map((time) => (
+                            <Grid size={{ xs: 4, sm: 3 }} key={time}>
+                            <Button
+                                fullWidth
+                                variant={selectedTime === time ? "contained" : "outlined"}
+                                color="primary"
+                                onClick={() => setSelectedTime(time)}
+                            >
+                                {dayjs(time, 'HH:mm').format('h:mm A')}
+                            </Button>
+                            </Grid>
+                        ))}
+                        </Grid>
+                        {!selectedTime && <Box mt={2}>
+                            <Button
+                            variant="outlined"
+                            color="error"
+                            onClick={() => {
+                                setOpenTimesModal(false)
+                            }}
+                            >
+                            Cancel
+                            </Button>
+                        </Box>}
+                        {/* Confirmation Summary */}
+                        {selectedTime && selectedTherapist && (
+                        <Box mt={4} textAlign="center">
+                            <Typography variant="subtitle1" gutterBottom>
+                            Confirm this appointment?
+                            </Typography>
+                            <Typography variant="body1">
+                            Therapist: <strong>{selectedTherapist.first_name} {selectedTherapist.last_name}</strong>
+                            </Typography>
+                            <Typography variant="body1">
+                            Date: <strong>{dayjs(selectedDate).format("MMMM D, YYYY")}</strong>
+                            </Typography>
+                            <Typography variant="body1">
+                            Time: <strong>{dayjs(selectedTime, 'HH:mm').format('h:mm A')}</strong>
+                            </Typography>
+                            {/* Use Stack for spacing and centering */}
+                            <Grid container justifyContent="center" spacing={2} mt={3}>
+                                <Grid>
+                                    <Button
+                                    variant="contained"
+                                    color="success"
+                                    onClick={() => {
+                                        handleBookSession();
+                                        setOpenTimesModal(false);
+                                    }}
+                                    >
+                                        Confirm
+                                    </Button>
+                                </Grid>
+                                <Grid>
+                                    <Button
+                                    variant="contained"
+                                    color="error"
+                                    onClick={() => {
+                                        setSelectedTime(null);
+                                    }}
+                                    >
+                                        Cancel
+                                    </Button>
+                                </Grid>
+                                </Grid>
+                        </Box>
+                        )}
+                    </DialogContent>
+                </Dialog>
             </Container>
         </div>
     );
