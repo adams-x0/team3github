@@ -60,9 +60,26 @@ export const loginUser = createAsyncThunk(
   }
 );
 
+export const updateSessionDuration = createAsyncThunk(
+  'auth/updateSessionDuration',
+  async (sessionDuration, { getState, rejectWithValue }) => {
+    try {
+      const { user } = getState().auth;
+      await axios.post(`${BASE_URL}/updateSessionDuration`, {
+        user_id: user.user_id,
+        session_duration: sessionDuration,
+      });
+      return sessionDuration; // we return the new value directly
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.error || 'Failed to update session duration');
+    }
+  }
+);
+
 const initialState = {
   user: JSON.parse(localStorage.getItem('user')) || null,
   defaultAvailability: JSON.parse(localStorage.getItem('defaultAvailability')) || null,
+  sessionDuration: null,
   loading: false,
   error: null,
 };
@@ -142,6 +159,18 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchTherapistAvailabilityByUserId.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(updateSessionDuration.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateSessionDuration.fulfilled, (state, action) => {
+        state.sessionDuration = action.payload;
+        state.loading = false;
+      })
+      .addCase(updateSessionDuration.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

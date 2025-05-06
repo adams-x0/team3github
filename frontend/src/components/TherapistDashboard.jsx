@@ -16,13 +16,17 @@ import {
     DialogActions,
     DialogContent,
     FormControlLabel,
-    Checkbox
+    FormControl,
+    FormLabel,
+    Checkbox,
+    Select,
+    MenuItem
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from "react-redux";
 import TherapistNavbar from "./therapistNavbar";
-import { fetchTherapistAvailabilityByUserId, updateDefaultAvailability } from '../Slices/authSlice'
+import { fetchTherapistAvailabilityByUserId, updateDefaultAvailability, updateSessionDuration } from '../Slices/authSlice'
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -42,6 +46,7 @@ const TherapistDashboard = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [applyToNext5Weeks, setApplyToNext5Weeks] = useState(false);
     const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+    const sessionDuration = useSelector((state) => state.auth.sessionDuration);
 
     //Use Effect updates the Backend with new availability
     useEffect(() => {
@@ -109,17 +114,23 @@ const TherapistDashboard = () => {
                                 <Box display="flex" flexDirection="column" mr={4}>
                                     <Button
                                         variant="contained"
-                                        onClick={() => setCalendarType('default')}
-                                        sx={{ mb: 2 }}>
-                                        Show & Change Default Availability
-                                    </Button>
-                                    <Button
-                                        variant="contained"
                                         color="error"
                                         onClick={() => setIsResetModalOpen(true)}
                                     >
                                         Reset Default Availability
                                     </Button>
+                                    <FormControl fullWidth sx={{ mt: 2 }}>
+                                        <FormLabel>Preferred Appointment Length</FormLabel>
+                                        <Select
+                                            value={sessionDuration}
+                                            onChange={(e) => dispatch(updateSessionDuration(e.target.value))}
+                                            size="small"
+                                        >
+                                            <MenuItem value="30">30 Minutes</MenuItem>
+                                            <MenuItem value="45">45 Minutes</MenuItem>
+                                            <MenuItem value="60">60 Minutes</MenuItem>
+                                        </Select>
+                                    </FormControl>
                                     <FormControlLabel
                                         control={
                                             <Checkbox
