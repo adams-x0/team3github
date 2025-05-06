@@ -62,7 +62,6 @@ def create_tables():
                 specialization VARCHAR(255),
                 isVerified BOOLEAN DEFAULT FALSE,
                 default_availability JSON,
-                weekly_availability JSON,
                 session_duration ENUM('30', '45', '60') DEFAULT '60',
                 FOREIGN KEY (user_id) REFERENCES Users(user_id)
             )
@@ -338,6 +337,27 @@ def book_appointment():
 
     return jsonify({"message": "Appointment booked successfully"}), 201
 
+@app.route('/updateSessionDuration', methods=['POST'])
+def update_session_duration():
+    data = request.get_json()
+    user_id = data.get('user_id')
+    session_duration = data.get('session_duration')
+
+    if user_id is None or session_duration not in ['30', '45', '60']:
+        return jsonify({"error": "Missing or invalid parameters"}), 400
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    cursor.execute("""
+        UPDATE Therapists
+        SET session_duration = %s
+        WHERE user_id = %s
+    """, (session_duration, user_id))
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+    return jsonify({"message": "Session duration updated"}), 200
 
 # Entry point
 if __name__ == '__main__':
