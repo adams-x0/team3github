@@ -32,7 +32,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import { fetchAllTherapists } from "../Slices/GetSlice"
-import { bookAppointment } from '../Slices/authSlice'
+import { bookAppointment, getAppointmentsByTherapistId } from '../Slices/authSlice'
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import dayjs from "dayjs";
@@ -56,6 +56,7 @@ const StudentDashboard = () => {
     const [selectedSpecialization, setSelectedSpecialization] = useState('');
     const user = useSelector((state) => state.auth.user);
     const [openTimesModal, setOpenTimesModal] = useState(false);
+    const [therapistAppointments, setTherapistAppointments] = useState([]);
 
     useEffect(() => {
         fetchAllTherapists(setTherapists)
@@ -65,6 +66,19 @@ const StudentDashboard = () => {
             navigate('/login');
         }
     }, [user, navigate, setTherapists]);
+
+    useEffect(() => {
+        if (selectedTherapistId) {
+            dispatch(getAppointmentsByTherapistId(selectedTherapistId))
+                .then((result) => {
+                    if (getAppointmentsByTherapistId.fulfilled.match(result)) {
+                        setTherapistAppointments(result.payload);
+                    } else {
+                        console.error("Failed to fetch appointments", result.payload);
+                    }
+                });
+        }
+    }, [dispatch, selectedTherapistId]);
 
     if (!user) {
         return <div>Loading...</div>;
@@ -114,9 +128,55 @@ const StudentDashboard = () => {
         ) : new Set();
 
     const shouldDisableDate = (date) => {
+        const dateStr = date.format('YYYY-MM-DD');
         const isPast = date.isBefore(dayjs(), 'day');
-        const isNotAvailable = !availableDates.has(date.format('YYYY-MM-DD'));
-        return isPast || isNotAvailable;
+        const isNotAvailable = !availableDates.has(dateStr);
+        
+        // Check if all possible slots for the day are booked
+        const availabilityArray = JSON.parse(selectedTherapist?.default_availability || '[]');
+        const sessionDuration = parseInt(selectedTherapist?.session_duration || "60", 10);
+        
+        const slotsForDay = availabilityArray.filter(slot =>
+            dayjs(slot.start).format('YYYY-MM-DD') === dateStr
+        );
+        
+        let totalPossibleSlots = 0;
+        let bookedCount = 0;
+        
+        slotsForDay.forEach(slot => {
+            let current = dayjs(slot.start);
+            const end = dayjs(slot.end);
+        
+            while (current.isBefore(end) || current.isSame(end)) {
+                const sessionEnd = current.add(sessionDuration, 'minute');
+                if (sessionEnd.isAfter(end)) break;
+        
+                const minute = current.minute();
+                const isValidStart =
+                    sessionDuration === 45 ? minute % 15 === 0 :
+                    sessionDuration === 30 ? minute % 30 === 0 :
+                    sessionDuration === 60 ? minute === 0 :
+                    false;
+        
+                if (isValidStart) {
+                    totalPossibleSlots++;
+                    const formattedTime = current.format('HH:mm');
+                    const isBooked = therapistAppointments.some(
+                        appt => appt.date === dateStr && appt.time === formattedTime
+                    );
+                    if (isBooked) {
+                        bookedCount++;
+                    }
+                    current = current.add(sessionDuration, 'minute');
+                } else {
+                    current = current.add(15, 'minute');
+                }
+            }
+        });
+        
+        const isFullyBooked = totalPossibleSlots > 0 && bookedCount === totalPossibleSlots;
+        
+        return isPast || isNotAvailable || isFullyBooked;
     };
 
     const handleDateChange = (newValue) => {
@@ -140,7 +200,6 @@ const StudentDashboard = () => {
     
                     while (current.isBefore(end) || current.isSame(end)) {
                         const sessionEnd = current.add(sessionDuration, 'minute');
-    
                         if (sessionEnd.isAfter(end)) break;
     
                         const minute = current.minute();
@@ -151,25 +210,34 @@ const StudentDashboard = () => {
                             false;
     
                         if (isValidStart) {
-                            generatedSlots.push(current.format('HH:mm'));
-                            // ⬅️ For 45-min sessions, move to next block only after 45 mins
+                            const formattedTime = current.format('HH:mm');
+    
+                            // Exclude booked time slots
+                            const isBooked = therapistAppointments.some(
+                                appt => appt.date === selectedDateStr && appt.time === formattedTime
+                            );
+    
+                            if (!isBooked) {
+                                generatedSlots.push(formattedTime);
+                            }
+    
                             current = current.add(sessionDuration, 'minute');
                         } else {
-                            // ⬅️ Otherwise just move forward by 15 mins
                             current = current.add(15, 'minute');
                         }
                     }
                 });
     
                 setAvailableTimes(generatedSlots);
-                setOpenTimesModal(true);
+                setOpenTimesModal(generatedSlots.length > 0);
             } catch (error) {
-                console.error("Error parsing default_availability or generating slots:", error);
+                console.error("Error parsing availability or generating slots:", error);
                 setAvailableTimes([]);
                 setOpenTimesModal(false);
             }
         }
     };
+    
 
     const handleBookSession = async () => {
     if (!selectedTherapistId || !selectedTime || !selectedDate) {
@@ -408,7 +476,6 @@ const StudentDashboard = () => {
                                         setOpenTimesModal(false);
                                         setSelectedTime(null)
                                         setSelectedDate(null)
-                                        setSelectedTherapistId(null)
                                     }}
                                     >
                                         Confirm
