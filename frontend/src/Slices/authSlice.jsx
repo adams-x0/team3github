@@ -76,12 +76,28 @@ export const updateSessionDuration = createAsyncThunk(
   }
 );
 
+export const bookAppointment = createAsyncThunk(
+  'auth/bookAppointment',
+  async (appointmentData, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(`${BASE_URL}/bookAppointment`, appointmentData);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.error || 'Failed to book appointment');
+    }
+  }
+);
+
 const initialState = {
   user: JSON.parse(localStorage.getItem('user')) || null,
   defaultAvailability: JSON.parse(localStorage.getItem('defaultAvailability')) || null,
   sessionDuration: null,
   loading: false,
   error: null,
+
+  // Add these
+  bookingStatus: 'idle',
+  bookingError: null,
 };
 
 // Auth slice
@@ -173,6 +189,17 @@ const authSlice = createSlice({
       .addCase(updateSessionDuration.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      .addCase(bookAppointment.pending, (state) => {
+        state.bookingStatus = 'loading';
+        state.bookingError = null;
+      })
+      .addCase(bookAppointment.fulfilled, (state) => {
+        state.bookingStatus = 'succeeded';
+      })
+      .addCase(bookAppointment.rejected, (state, action) => {
+        state.bookingStatus = 'failed';
+        state.bookingError = action.payload;
       })
   },
 });
