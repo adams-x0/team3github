@@ -88,9 +88,22 @@ export const bookAppointment = createAsyncThunk(
   }
 );
 
+export const getAppointmentsByTherapistId = createAsyncThunk(
+  'auth/getAppointmentsByTherapistId',
+  async (therapistId, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/getAppointmentsByTherapist/${therapistId}`);
+      return response.data; // expected to be an array of appointments
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.error || 'Failed to fetch appointments');
+    }
+  }
+);
+
 const initialState = {
   user: JSON.parse(localStorage.getItem('user')) || null,
   defaultAvailability: JSON.parse(localStorage.getItem('defaultAvailability')) || null,
+  therapistAppointments: [],
   sessionDuration: null,
   loading: false,
   error: null,
@@ -200,6 +213,19 @@ const authSlice = createSlice({
       .addCase(bookAppointment.rejected, (state, action) => {
         state.bookingStatus = 'failed';
         state.bookingError = action.payload;
+      })
+      .addCase(getAppointmentsByTherapistId.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getAppointmentsByTherapistId.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.therapistAppointments = action.payload;
+      })
+      .addCase(getAppointmentsByTherapistId.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       })
   },
 });

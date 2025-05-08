@@ -398,6 +398,40 @@ def update_session_duration():
 
     return jsonify({"message": "Session duration updated"}), 200
 
+@app.route('/getAppointmentsByTherapist/<int:therapist_id>', methods=['GET'])
+def get_appointments_by_therapist(therapist_id):
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        cursor.execute("""
+            SELECT date, time, status
+            FROM Appointments
+            WHERE therapist_id = %s
+            ORDER BY date, time
+        """, (therapist_id,))
+
+        rows = cursor.fetchall()
+
+        # Safely convert fields to string
+        appointments = [
+            {
+                'date': row[0].strftime('%Y-%m-%d'),
+                'time': f"{row[1].seconds//3600:02}:{(row[1].seconds//60)%60:02}",
+                'status': row[2]
+            }
+            for row in rows
+        ]
+
+        cursor.close()
+        connection.close()
+
+        return jsonify(appointments), 200
+
+    except Exception as e:
+        print(f"[✖] Error retrieving appointments: {e}")
+        return jsonify({'error': 'Failed to fetch appointments'}), 500
+
 # Entry point
 if __name__ == '__main__':
     create_tables()
