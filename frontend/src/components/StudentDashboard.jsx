@@ -32,9 +32,9 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import { fetchAllTherapists } from "../Slices/GetSlice"
-import { bookAppointment } from "../Slices/SetSlice";
+import { bookAppointment } from '../Slices/authSlice'
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 import isoWeek from "dayjs/plugin/isoWeek";
@@ -44,6 +44,7 @@ dayjs.extend(isoWeek);
 
 const StudentDashboard = () => {
     const navigate = useNavigate();
+    const dispatch = useDispatch()
     const [selectedDate, setSelectedDate] = useState(dayjs());
     const [therapists, setTherapists] = useState([]);
     const [selectedTherapistId, setSelectedTherapistId] = useState(null);
@@ -169,29 +170,30 @@ const StudentDashboard = () => {
             }
         }
     };
-    
 
     const handleBookSession = async () => {
-        if (!selectedTherapistId || !selectedTime) {
-            alert("Please select a therapist and time.");
-            return;
-        }
+    if (!selectedTherapistId || !selectedTime || !selectedDate) {
+        alert("Please select a therapist, date, and time.");
+        return;
+    }
 
-        const appointmentData = {
-            student_id: user.user_id,
-            therapist_id: selectedTherapistId,
-            date: selectedDate.format("YYYY-MM-DD"),
-            time: selectedTime,
-            location: "Online",
-        };
-    
-        const success = await bookAppointment(appointmentData);
-        if (success) {
-            alert("Appointment booked successfully and is now pending.");
-        } else {
-            alert("Failed to book appointment. Please try again.");
-        }
+    const appointmentData = {
+        student_id: user.user_id,
+        therapist_id: selectedTherapistId,
+        date: selectedDate.format("YYYY-MM-DD"),
+        time: selectedTime,
+        location: "Online",
     };
+
+    const result = await dispatch(bookAppointment(appointmentData));
+
+    if (bookAppointment.fulfilled.match(result)) {
+        alert("Appointment booked successfully and is now pending.");
+    } else {
+        alert(result.payload || "Failed to book appointment. Please try again.");
+    }
+    };
+
 
     return (
         <div>
@@ -404,6 +406,9 @@ const StudentDashboard = () => {
                                     onClick={() => {
                                         handleBookSession();
                                         setOpenTimesModal(false);
+                                        setSelectedTime(null)
+                                        setSelectedDate(null)
+                                        setSelectedTherapistId(null)
                                     }}
                                     >
                                         Confirm
