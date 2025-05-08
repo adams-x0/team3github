@@ -111,7 +111,7 @@ const ParentDashboard = () => {
                         <Button
                             variant="contained"
                             color="primary"
-                            onClick={() => navigate('/register')}
+                            onClick={() => navigate('/guardian-register-child')}
                         >
                             Add a Child
                         </Button>
