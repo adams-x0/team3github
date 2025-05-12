@@ -184,7 +184,7 @@ const Register = () => {
                     <div className="register-input-group">
                         <div className="register-input">
                             <label>Address</label>
-                            <input aria-required="true" id="address" maxLength={256} name="address" type="text" placeholder="Enter your address" onChange={handleInputChange} value={formData.dateFields.address} required />
+                            <input aria-required="true" id="address" maxLength={256} name="address" type="text" placeholder="Enter your address" onChange={handleInputChange} value={formData.address} required />
                         </div>
                         <div className="register-input">
                             <label>Role</label>

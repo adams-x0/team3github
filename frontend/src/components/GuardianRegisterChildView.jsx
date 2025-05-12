@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import '../css/register.css'
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { registerUser } from '../Slices/authSlice';
+import { registerChild } from '../Slices/authSlice';
 import { useSelector } from "react-redux";
 
 
@@ -35,7 +35,9 @@ const GuardianRegisterChild = () => {
             dobDay: "",
             dobYear: "",
         },
+        guardian_id: user.guardian_id,
     })
+
 
 
     // Handle input change
@@ -66,23 +68,32 @@ const GuardianRegisterChild = () => {
             ...formData,
             dob: dob,
         };
+
+
     
         try {
-            const result = await dispatch(registerUser(fullFormData));
-            if (registerUser.fulfilled.match(result)) {
-                // switch (formData.role) {
-                //     case 'student':
-                //         navigate('/student-dashboard');
-                //         break;
-                //     case 'guardian':
-                //         navigate('/parent-dashboard');
-                //         break;
-                //     case 'therapist':
-                //         navigate('/therapist-dashboard');
-                //         break;
-                //     default:
-                //         navigate('/');
-                // }
+            console.log("Form data before dispatch:", fullFormData);
+            const result = await dispatch(registerChild(fullFormData));
+            if (registerChild.fulfilled.match(result)) {
+                alert('Registration successful!'); // Show success alert
+                setTimeout(() => {
+                    navigate('/parent-dashboard'); // Navigate after 1 second
+                }, 1000); // 1000ms = 1 second
+
+                setFormData({
+                    firstName: "",
+                    lastName: "",
+                    email: "",
+                    phone: "",
+                    address: "",
+                    dateFields: {
+                        dobMonth: "",
+                        dobDay: "",
+                        dobYear: "",
+                    },
+                    guardian_id: user.guardian_id,
+                })
+
             } else {
                 console.error('Registration failed:', result.payload);
             }
@@ -101,6 +112,7 @@ const GuardianRegisterChild = () => {
             <div className="register-modal-box">
                 <header className="header">
                     <h1>Register Child</h1>
+                    <p>Fill in the details below with child information.</p>
                 </header>
 
                 {/* Registration Form */}
@@ -133,7 +145,7 @@ const GuardianRegisterChild = () => {
                     <div className="register-input-group">
                         <div className="register-input">
                             <label>Address</label>
-                            <input aria-required="true" id="address" maxLength={256} name="address" type="text" placeholder="Enter your address" onChange={handleInputChange} value={formData.dateFields.address} required />
+                            <input aria-required="true" id="address" maxLength={256} name="address" type="text" placeholder="Enter your address" onChange={handleInputChange} value={formData.address} required />
                         </div>
                     </div>
 

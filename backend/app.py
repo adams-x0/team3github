@@ -9,6 +9,12 @@ from flask_mail import Mail, Message  # type: ignore
 app = Flask(__name__)
 CORS(app)  # Allow frontend to make requests
 
+# Sanitize only string fields
+def safe_escape(value):
+    if isinstance(value, str) and value.strip():
+        return html.escape(value)
+    return value
+
 def get_db_connection():
     return mysql.connector.connect(
         host="team3db.cjmg4mysketj.us-east-2.rds.amazonaws.com",
@@ -90,6 +96,62 @@ def create_tables():
     except Exception as e:
         print(f"[✖] Error creating tables: {e}")
 
+@app.route('/addChild', methods=['POST'])
+def add_child():
+    data = request.get_json()
+
+    # Validate required fields
+    required_fields = ['guardian_id', 'firstName', 'lastName', 'dob', 'address']
+    if not all(field in data and data[field] for field in required_fields):
+        return jsonify({"error": "Missing required fields"}), 400
+    
+    # Extract fields
+    guardian_id = data['guardian_id']
+    first_name = data['firstName']
+    last_name = data['lastName']
+    phone = data.get('phone', '')
+    email = data.get('email', '')
+    address = data['address']
+    dob = data['dob'] 
+
+    # check for html injection
+    guardian_id = safe_escape(guardian_id)
+    first_name = safe_escape(first_name)
+    last_name = safe_escape(last_name)
+    phone = safe_escape(phone)
+    email = safe_escape(email)
+    address = safe_escape(address)
+    dob = safe_escape(dob)
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Insert the child
+        cursor.execute("""
+            INSERT INTO Children (address, date_of_birth, email, first_name, guardian_id, last_name, phone)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)""", (address, dob, email, first_name, guardian_id, last_name, phone))
+        
+        child_id = cursor.lastrowid
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        child_response = {
+            "child_id": child_id,
+            "first_name": first_name,
+            "last_name": last_name,
+            "guardian_id": guardian_id,
+            "address": address,
+            "dob": dob,
+            "phone": phone,
+            "email": email
+        }
+
+        return jsonify({"child": child_response}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/addUsers', methods=['POST'])
 def add_user():
     data = request.get_json()
@@ -111,12 +173,6 @@ def add_user():
     license_number = data.get('licenseNumber', '') # Needs implementation on frontend
     specialization = data.get('specialization', '') # ditto
     is_verified = data.get('isVerified', False) #ditto
-
-    # Sanitize only string fields
-    def safe_escape(value):
-        if isinstance(value, str) and value.strip():
-            return html.escape(value)  
-        return value
     
     # check for html injection
     email = safe_escape(email)
@@ -211,6 +267,14 @@ def login():
 
         if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
             user.pop('password', None)
+
+            # If guardian, get guardian_id from Guardians table
+            if user['role'] == 'guardian':
+                cursor.execute("SELECT guardian_id FROM Guardians WHERE user_id = %s", (user['user_id'],))
+                guardian = cursor.fetchone()
+                if guardian:
+                    user['guardian_id'] = guardian['guardian_id']
+
             return jsonify({'message': 'Login successful', 'user': user}), 200
         else:
             return jsonify({'error': 'Invalid email or password'}), 401

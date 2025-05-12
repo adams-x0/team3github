@@ -16,6 +16,18 @@ export const registerUser = createAsyncThunk(
   }
 );
 
+export const registerChild = createAsyncThunk(
+  'auth/registerChild',
+  async (childData, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(`${BASE_URL}/addChild`, childData);
+      return response.data.child;
+    } catch (error) { 
+      return rejectWithValue(error.response?.data?.error || 'Child registration failed');
+    }
+  }
+);
+
 // Async thunk to update default availability
 export const updateDefaultAvailability = createAsyncThunk(
   'auth/updateDefaultAvailability',
