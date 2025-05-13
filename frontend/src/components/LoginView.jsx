@@ -18,26 +18,34 @@ const dispatch = useDispatch();
 
 const { user, error, loading } = useSelector((state) => state.auth);
 
+
 useEffect(() => {
-  if (user) {
-    switch (user.role) {
-      case 'student':
-        navigate('/student-dashboard');
-        break;
-      case 'guardian':
-        navigate('/parent-dashboard');
-        break;
-      case 'therapist':
-        navigate('/therapist-dashboard');
-        break;
-      case 'admin':
-        navigate('/admin-dashboard');
-        break;
-      default:
-        navigate('/');
+    if (user) {
+      if (user?.role === 'therapist' && user?.isVerified === 0) {
+        alert("Your therapist account is on hold.");
+        localStorage.removeItem('user');
+        navigate('/login', { replace: true });
+        return;
+      }
+
+      switch (user.role) {
+        case 'student':
+          navigate('/student-dashboard');
+          break;
+        case 'guardian':
+          navigate('/parent-dashboard');
+          break;
+        case 'therapist':
+          navigate('/therapist-dashboard');
+          break;
+        case 'admin':
+          navigate('/admin-dashboard');
+          break;
+        default:
+          navigate('/');
+      }
     }
-  }
-}, [user, navigate]);
+  }, [user, navigate]);
 
 const handleNext = async (e) => {
   e.preventDefault();
@@ -118,9 +126,3 @@ const handleNext = async (e) => {
 };
 
 export default Login;
-
-
-
-
-
-
