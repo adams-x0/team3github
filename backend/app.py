@@ -501,6 +501,52 @@ def get_appointments_by_therapist(therapist_id):
         print(f"[✖] Error retrieving appointments: {e}")
         return jsonify({'error': 'Failed to fetch appointments'}), 500
 
+@app.route('/cancelAppointment', methods=['POST'])
+def cancel_appointment():
+    data = request.get_json()
+    appointment_id = data['appointment_id']
+
+    connection = get_db_connection()
+    cursor = connection.cursor(dictionary=True)
+
+    # Get details before deleting
+    cursor.execute("""
+        SELECT a.date, a.time, a.location,
+               s.student_id, u1.email AS student_email, u1.first_name AS student_name,
+               t.therapist_id, u2.email AS therapist_email, u2.first_name AS therapist_name
+        FROM Appointments a
+        JOIN Students s ON a.student_id = s.student_id
+        JOIN Users u1 ON s.user_id = u1.user_id
+        JOIN Therapists t ON a.therapist_id = t.therapist_id
+        JOIN Users u2 ON t.user_id = u2.user_id
+        WHERE a.appointment_id = %s
+    """, (appointment_id,))
+    appt = cursor.fetchone()
+
+    if not appt:
+        return jsonify({"error": "Appointment not found"}), 404
+
+    # Delete appointment
+    cursor.execute("DELETE FROM Appointments WHERE appointment_id = %s", (appointment_id,))
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+    subject = "Appointment Cancelled"
+    body = (
+        f"Hi {appt['student_name']} and {appt['therapist_name']},\n\n"
+        f"Your appointment on {appt['date']} at {appt['time']} in {appt['location']} has been cancelled.\n\n"
+        "Please contact each other if needed."
+    )
+    try:
+        mail.send(Message(subject, recipients=[appt['student_email']], body=body))
+        mail.send(Message(subject, recipients=[appt['therapist_email']], body=body))
+    except Exception as e:
+        print("Cancellation email failed:", e)
+
+    return jsonify({"message": "Appointment cancelled and emails sent."}), 200
+
+
 # Entry point
 if __name__ == '__main__':
     create_tables()
