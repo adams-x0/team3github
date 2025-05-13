@@ -11,7 +11,7 @@ CORS(app)  # Allow frontend to make requests
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # Or your SMTP server
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'cmsc447team32025@example.com'
+app.config['MAIL_USERNAME'] = 'cmsc447team32025@gmail.com'
 app.config['MAIL_PASSWORD'] = 'qpgtdwnjiugqozos'
 mail = Mail(app)
 # Sanitize only string fields
