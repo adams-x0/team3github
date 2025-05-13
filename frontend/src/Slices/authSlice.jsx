@@ -250,6 +250,22 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+      // registerChild pending
+      .addCase(registerChild.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      // registerChild success
+      .addCase(registerChild.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        alert('Child registration successful!'); // Optional: Show success alert
+      })
+      // registerChild error
+      .addCase(registerChild.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
       //Update default availability Success
       .addCase(updateDefaultAvailability.fulfilled, (state, action) => {
         state.successMessage = action.payload.message; // or skip if not needed

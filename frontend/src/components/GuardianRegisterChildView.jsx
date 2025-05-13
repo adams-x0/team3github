@@ -75,10 +75,7 @@ const GuardianRegisterChild = () => {
             console.log("Form data before dispatch:", fullFormData);
             const result = await dispatch(registerChild(fullFormData));
             if (registerChild.fulfilled.match(result)) {
-                alert('Registration successful!'); // Show success alert
-                setTimeout(() => {
-                    navigate('/parent-dashboard'); // Navigate after 1 second
-                }, 1000); // 1000ms = 1 second
+                navigate('/parent-dashboard'); // Navigate after 1 second
 
                 setFormData({
                     firstName: "",
