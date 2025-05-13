@@ -280,6 +280,11 @@ def login():
                 if guardian:
                     user['guardian_id'] = guardian['guardian_id']
 
+            if user['role'] == 'therapist':
+                cursor.execute("SELECT isVerified FROM Therapists WHERE user_id = %s", (user['user_id'],))
+                t_data = cursor.fetchone()
+                user['isVerified'] = t_data['isVerified'] if t_data else 0
+
             return jsonify({'message': 'Login successful', 'user': user}), 200
         else:
             return jsonify({'error': 'Invalid email or password'}), 401
@@ -744,6 +749,27 @@ def accept_appointment(appointment_id):
     except Exception as e:
         print("Confirmation email failed:", e)
     return jsonify({"message": "Appointment status updated to accepted."}), 200
+
+@app.route('/rejectTherapist', methods=['DELETE'])
+def reject_therapist():
+    data = request.get_json()
+    therapist_id = data.get('therapist_id')
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT user_id FROM Therapists WHERE therapist_id = %s", (therapist_id,))
+    result = cursor.fetchone()
+    if not result:
+        cursor.close()
+        conn.close()
+        return jsonify({'message': 'Therapist not found'}), 404
+
+    user_id = result[0]
+    cursor.execute("DELETE FROM Therapists WHERE therapist_id = %s", (therapist_id,))
+    cursor.execute("DELETE FROM Users WHERE user_id = %s", (user_id,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return jsonify({'message': 'Therapist rejected and removed'})
 
 # Entry point
 if __name__ == '__main__':
