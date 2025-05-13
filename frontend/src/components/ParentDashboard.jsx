@@ -276,6 +276,17 @@ const ParentDashboard = () => {
                         Welcome, {user.first_name} {user.last_name}
 
                     </Typography>
+
+                    {/* Add Child Section */}
+                    <Box mt={4} mb={4}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => navigate('/guardian-register-child')}
+                        >
+                            Add a Child
+                        </Button>
+                    </Box>
     
                     {/* Book a Session & Find Therapist */}
                     <Accordion defaultExpanded sx={{ mb: 5 }}>
