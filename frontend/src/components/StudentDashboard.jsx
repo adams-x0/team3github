@@ -32,7 +32,12 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import { fetchAllTherapists } from "../Slices/GetSlice"
-import { bookAppointment, getAppointmentsByTherapistId } from '../Slices/authSlice'
+import {
+    bookAppointment,
+    getAppointmentsByTherapistId,
+    getAppointmentsForStudent,
+    cancelAppointment
+} from '../Slices/authSlice'
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import dayjs from "dayjs";
@@ -57,15 +62,19 @@ const StudentDashboard = () => {
     const user = useSelector((state) => state.auth.user);
     const [openTimesModal, setOpenTimesModal] = useState(false);
     const [therapistAppointments, setTherapistAppointments] = useState([]);
+    const studentAppointments = useSelector((state) => state.auth.studentAppointments);
 
     useEffect(() => {
         fetchAllTherapists(setTherapists)
+        if (user) {
+            dispatch(getAppointmentsForStudent(user.user_id))
+        }
         if (!user) {
             navigate('/login');
         } else if (user.role !== 'student') {
             navigate('/login');
         }
-    }, [user, navigate, setTherapists]);
+    }, [user, navigate, setTherapists, dispatch]);
 
     useEffect(() => {
         if (selectedTherapistId) {
@@ -375,17 +384,34 @@ const StudentDashboard = () => {
                     </AccordionSummary>
                     <AccordionDetails>
                         <List>
-                            <ListItem
-                                secondaryAction={
-                                    
-                                    <Box display="flex" gap={1}>
-                                        <Button variant="outlined" color="primary">Reschedule</Button>
-                                        <Button variant="contained" color="error">Cancel</Button>
-                                    </Box>
-                                }
-                            >
-                                <ListItemText primary="Session with Dr. Smith" secondary="Date: 2025-10-15, 10:00 AM" />
-                            </ListItem>
+                            {studentAppointments.length === 0 ? (
+                                <Typography>No appointments found.</Typography>
+                            ) : (
+                                studentAppointments.map((appt) => (
+                                    <ListItem key={appt.appointment_id}
+                                        secondaryAction={
+                                            <Box display="flex" gap={1}>
+                                                <Button
+                                                    variant="contained"
+                                                    color="error"
+                                                    onClick={() =>
+                                                        dispatch(cancelAppointment(appt.appointment_id)).then(() =>
+                                                            dispatch(getAppointmentsForStudent(user.user_id))
+                                                        )
+                                                    }
+                                                >
+                                                    Cancel
+                                                </Button>
+                                            </Box>
+                                        }
+                                    >
+                                        <ListItemText
+                                            primary={`Session with ${appt.therapist_name}`}
+                                            secondary={`Date: ${appt.date}, Time: ${appt.time}, Status: ${appt.status}`}
+                                        />
+                                    </ListItem>
+                                ))
+                            )}
                         </List>
                     </AccordionDetails>
                 </Accordion>

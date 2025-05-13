@@ -501,6 +501,32 @@ def get_appointments_by_therapist(therapist_id):
         print(f"[✖] Error retrieving appointments: {e}")
         return jsonify({'error': 'Failed to fetch appointments'}), 500
 
+@app.route('/getSessionDuration/<int:user_id>', methods=['GET'])
+def get_session_duration(user_id):
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        cursor.execute("""
+            SELECT session_duration
+            FROM Therapists
+            WHERE user_id = %s
+        """, (user_id,))
+
+        row = cursor.fetchone()
+
+        cursor.close()
+        connection.close()
+
+        if row:
+            return jsonify({'session_duration': row[0]}), 200
+        else:
+            return jsonify({'error': 'Therapist not found'}), 404
+
+    except Exception as e:
+        print(f"[✖] Error retrieving session duration: {e}")
+        return jsonify({'error': 'Failed to fetch session duration'}), 500
+
 @app.route('/cancelAppointment/<int:appointment_id>', methods=['DELETE'])
 def cancel_appointment(appointment_id):
     connection = get_db_connection()
@@ -614,6 +640,76 @@ def get_appointments_by_user_id(user_id):
 
     except Exception as e:
         print(f"Error: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+@app.route('/getAppointmentsForStudent/<int:user_id>', methods=['GET'])
+def get_appointments_for_student(user_id):
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        # Step 1: Get student_id using user_id
+        cursor.execute("""
+            SELECT student_id FROM Students WHERE user_id = %s
+        """, (user_id,))
+        result = cursor.fetchone()
+
+        if not result:
+            cursor.close()
+            connection.close()
+            return jsonify({'error': 'Student not found for the given user ID'}), 404
+
+        student_id = result[0]
+
+        # Step 2: Get all appointments for the student
+        cursor.execute("""
+            SELECT a.date, a.time, a.status, a.appointment_id, t.therapist_id
+            FROM Appointments a
+            JOIN Therapists t ON a.therapist_id = t.therapist_id
+            WHERE a.student_id = %s
+            ORDER BY a.date, a.time
+        """, (student_id,))
+        rows = cursor.fetchall()
+
+        appointments = []
+
+        for row in rows:
+            date = row[0].strftime('%Y-%m-%d')
+            time = f"{row[1].seconds // 3600:02}:{(row[1].seconds // 60) % 60:02}"
+            status = row[2]
+            appointment_id = row[3]
+            therapist_id = row[4]
+
+            # Step 3: Get therapist name from Users table using therapist_id
+            cursor.execute("""
+                SELECT u.first_name, u.last_name
+                FROM Users u
+                JOIN Therapists t ON u.user_id = t.user_id
+                WHERE t.therapist_id = %s
+            """, (therapist_id,))
+            therapist_result = cursor.fetchone()
+
+            if therapist_result:
+                first_name, last_name = therapist_result
+                therapist_name = f"{first_name} {last_name}"
+            else:
+                therapist_name = "Unknown"
+
+            appointments.append({
+                'therapist_name': therapist_name,
+                'date': date,
+                'time': time,
+                'status': status,
+                'appointment_id': appointment_id
+            })
+
+        cursor.close()
+        connection.close()
+
+        return jsonify(appointments), 200
+
+    except Exception as e:
+        print(f"[✖] Error fetching student appointments: {e}")
         return jsonify({'error': 'Internal server error'}), 500
 
 @app.route('/acceptAppointment/<int:appointment_id>', methods=['PUT'])

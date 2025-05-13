@@ -33,6 +33,7 @@ import {
     getAppointmentsByUserId,
     cancelAppointment,
     acceptAppointment,
+    fetchSessionDuration
 } from '../Slices/authSlice'
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -69,6 +70,12 @@ const TherapistDashboard = () => {
             dispatch(getAppointmentsByUserId(user.user_id))
         }
     }, [user, dispatch, cancellationStatus, accepted])
+
+    useEffect(() => {
+        if (user) {
+            dispatch(fetchSessionDuration(user.user_id));
+        }
+    }, [user, dispatch])
 
     //Use Effect updates the Backend with new availability
     useEffect(() => {
