@@ -501,11 +501,8 @@ def get_appointments_by_therapist(therapist_id):
         print(f"[✖] Error retrieving appointments: {e}")
         return jsonify({'error': 'Failed to fetch appointments'}), 500
 
-@app.route('/cancelAppointment', methods=['POST'])
-def cancel_appointment():
-    data = request.get_json()
-    appointment_id = data['appointment_id']
-
+@app.route('/cancelAppointment/<int:appointment_id>', methods=['DELETE'])
+def cancel_appointment(appointment_id):
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
 
@@ -524,6 +521,8 @@ def cancel_appointment():
     appt = cursor.fetchone()
 
     if not appt:
+        cursor.close()
+        connection.close()
         return jsonify({"error": "Appointment not found"}), 404
 
     # Delete appointment
@@ -546,6 +545,99 @@ def cancel_appointment():
 
     return jsonify({"message": "Appointment cancelled and emails sent."}), 200
 
+@app.route('/getAppointmentsByUserId/<int:user_id>', methods=['GET'])
+def get_appointments_by_user_id(user_id):
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        # Step 1: Get therapist_id from Therapists table using user_id
+        cursor.execute("""
+            SELECT therapist_id FROM Therapists WHERE user_id = %s
+        """, (user_id,))
+        result = cursor.fetchone()
+
+        if not result:
+            cursor.close()
+            connection.close()
+            return jsonify({'error': 'Therapist not found for the given user ID'}), 404
+
+        therapist_id = result[0]
+
+        # Step 2: Get all appointments for the therapist_id
+        cursor.execute("""
+            SELECT a.date, a.time, a.status, a.appointment_id, s.student_id
+            FROM Appointments a
+            JOIN Students s ON a.student_id = s.student_id
+            WHERE a.therapist_id = %s
+            ORDER BY a.date, a.time
+        """, (therapist_id,))
+        rows = cursor.fetchall()
+
+        appointments = []
+        
+        for row in rows:
+            date = row[0].strftime('%Y-%m-%d')
+            time = f"{row[1].seconds // 3600:02}:{(row[1].seconds // 60) % 60:02}"
+            status = row[2]
+            appointment_id = row[3]
+            student_id = row[4]
+
+            # Step 3: Get student name from Users table using student_id
+            cursor.execute("""
+                SELECT u.first_name, u.last_name
+                FROM Users u
+                JOIN Students s ON u.user_id = s.user_id
+                WHERE s.student_id = %s
+            """, (student_id,))
+            student_result = cursor.fetchone()
+
+            if student_result:
+                first_name, last_name = student_result
+                student_name = f"{first_name} {last_name}"
+            else:
+                student_name = "Unknown"
+
+            # Add the appointment with the student's name
+            appointments.append({
+                'student_name': student_name,
+                'date': date,
+                'time': time,
+                'status': status,
+                'appointment_id': appointment_id
+            })
+
+        cursor.close()
+        connection.close()
+
+        return jsonify(appointments), 200
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+@app.route('/acceptAppointment/<int:appointment_id>', methods=['PUT'])
+def accept_appointment(appointment_id):
+    connection = get_db_connection()
+    cursor = connection.cursor(dictionary=True)
+
+    # Check if the appointment exists
+    cursor.execute("SELECT * FROM Appointments WHERE appointment_id = %s", (appointment_id,))
+    appointment = cursor.fetchone()
+
+    if not appointment:
+        cursor.close()
+        connection.close()
+        return jsonify({"error": "Appointment not found"}), 404
+
+    # Update the appointment status to 'accepted'
+    cursor.execute("UPDATE Appointments SET status = %s WHERE appointment_id = %s", ("accepted", appointment_id))
+    connection.commit()
+
+    cursor.close()
+    connection.close()
+
+    return jsonify({"message": "Appointment status updated to accepted."}), 200
 
 # Entry point
 if __name__ == '__main__':

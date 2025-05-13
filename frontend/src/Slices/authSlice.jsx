@@ -112,6 +112,43 @@ export const getAppointmentsByTherapistId = createAsyncThunk(
   }
 );
 
+export const getAppointmentsByUserId = createAsyncThunk(
+  'auth/getAppointmentsByUserId',
+  async (userId, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/getAppointmentsByUserId/${userId}`);
+      return response.data; // expected to be an array of appointments
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.error || 'Failed to fetch appointments by user ID');
+    }
+  }
+);
+
+// Async thunk to cancel appointment
+export const cancelAppointment = createAsyncThunk(
+  'auth/cancelAppointment',
+  async (appointmentId, { rejectWithValue }) => {
+    try {
+      const response = await axios.delete(`${BASE_URL}/cancelAppointment/${appointmentId}`);
+      return response.data;  // Expected: { message: "Appointment cancelled and emails sent." }
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.error || 'Appointment cancellation failed');
+    }
+  }
+);
+
+export const acceptAppointment = createAsyncThunk(
+  'auth/acceptAppointment',
+  async (appointmentId, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(`${BASE_URL}/acceptAppointment/${appointmentId}`);
+      return response.data; // expected: { message: "Appointment status updated to accepted." }
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.error || 'Failed to accept appointment');
+    }
+  }
+);
+
 const initialState = {
   user: JSON.parse(localStorage.getItem('user')) || null,
   defaultAvailability: JSON.parse(localStorage.getItem('defaultAvailability')) || null,
@@ -119,6 +156,9 @@ const initialState = {
   sessionDuration: null,
   loading: false,
   error: null,
+  cancellationStatus: null,
+  availabilityLoading: false,
+  acceptStatus: 'idle',
 
   // Add these
   bookingStatus: 'idle',
@@ -137,6 +177,12 @@ const authSlice = createSlice({
       state.error = null;
       localStorage.removeItem('user');
       localStorage.removeItem('defaultAvailability');
+      state.therapistAppointments = null;
+      state.cancellationStatus = null;
+      state.availabilityLoading = false;
+      state.bookingStatus = null;
+      state.bookingError = null;
+      state.acceptStatus = 'idle';
     },
   },
   extraReducers: (builder) => {
@@ -196,15 +242,15 @@ const authSlice = createSlice({
       .addCase(fetchTherapistAvailabilityByUserId.fulfilled, (state, action) => {
         state.defaultAvailability = action.payload;
         localStorage.setItem('defaultAvailability', JSON.stringify(action.payload));
-        state.loading = false;
+        state.availabilityLoading = false;
         state.error = null;
       })
       .addCase(fetchTherapistAvailabilityByUserId.rejected, (state, action) => {
-        state.loading = false;
+        state.availabilityLoading = false;
         state.error = action.payload;
       })
       .addCase(updateSessionDuration.pending, (state) => {
-        state.loading = true;
+        state.availabilityLoading = true;
         state.error = null;
       })
       .addCase(updateSessionDuration.fulfilled, (state, action) => {
@@ -237,6 +283,43 @@ const authSlice = createSlice({
       })
       .addCase(getAppointmentsByTherapistId.rejected, (state, action) => {
         state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(getAppointmentsByUserId.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getAppointmentsByUserId.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.therapistAppointments = action.payload;
+      })
+      .addCase(getAppointmentsByUserId.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(cancelAppointment.pending, (state) => {
+        state.cancellationStatus = 'loading'
+        state.error = null;
+      })
+      // cancelAppointment success
+      .addCase(cancelAppointment.fulfilled, (state) => {
+        state.cancellationStatus = 'succeeded';
+        state.error = null;
+      })
+      // cancelAppointment error
+      .addCase(cancelAppointment.rejected, (state, action) => {
+        state.cancellationStatus = 'failed';
+        state.error = action.payload;
+      })
+      .addCase(acceptAppointment.pending, (state) => {
+        state.acceptStatus = 'loading';
+      })
+      .addCase(acceptAppointment.fulfilled, (state) => {
+        state.acceptStatus = 'succeeded';
+      })
+      .addCase(acceptAppointment.rejected, (state, action) => {
+        state.acceptStatus = 'failed';
         state.error = action.payload;
       })
   },
