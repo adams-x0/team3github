@@ -732,7 +732,17 @@ def accept_appointment(appointment_id):
 
     cursor.close()
     connection.close()
-
+    subject = "Appointment Confirmed"
+    body = (
+        f"Hi {appointment['student_name']} and {appointment['therapist_name']},\n\n"
+        f"Your appointment has been confirmed on {appointment['date']} at {appointment['time']} in {appointment['location']} .\n\n"
+        "Please contact each other if needed."
+    )
+    try:
+        mail.send(Message(subject, recipients=[appointment['student_email']], body=body))
+        mail.send(Message(subject, recipients=[appointment['therapist_email']], body=body))
+    except Exception as e:
+        print("Confirmation email failed:", e)
     return jsonify({"message": "Appointment status updated to accepted."}), 200
 
 # Entry point
