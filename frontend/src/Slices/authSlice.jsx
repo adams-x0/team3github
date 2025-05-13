@@ -112,6 +112,31 @@ export const getAppointmentsByTherapistId = createAsyncThunk(
   }
 );
 
+export const fetchSessionDuration = createAsyncThunk(
+  'auth/fetchSessionDuration',
+  async (userId, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/getSessionDuration/${userId}`);
+      return response.data.session_duration;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.error || 'Failed to fetch session duration');
+    }
+  }
+);
+
+export const getAppointmentsForStudent = createAsyncThunk(
+  'auth/getAppointmentsForStudent',
+  async (userId, { rejectWithValue }) => {
+    try {
+      console.warn(userId)
+      const response = await axios.get(`${BASE_URL}/getAppointmentsForStudent/${userId}`);
+      return response.data; // expected to be an array of appointments with therapist names
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.error || 'Failed to fetch appointments for student');
+    }
+  }
+);
+
 export const getAppointmentsByUserId = createAsyncThunk(
   'auth/getAppointmentsByUserId',
   async (userId, { rejectWithValue }) => {
@@ -153,6 +178,7 @@ const initialState = {
   user: JSON.parse(localStorage.getItem('user')) || null,
   defaultAvailability: JSON.parse(localStorage.getItem('defaultAvailability')) || null,
   therapistAppointments: [],
+  studentAppointments: [],
   sessionDuration: null,
   loading: false,
   error: null,
@@ -177,7 +203,8 @@ const authSlice = createSlice({
       state.error = null;
       localStorage.removeItem('user');
       localStorage.removeItem('defaultAvailability');
-      state.therapistAppointments = null;
+      state.therapistAppointments = [];
+      state.studentAppointments = [];
       state.cancellationStatus = null;
       state.availabilityLoading = false;
       state.bookingStatus = null;
@@ -320,6 +347,30 @@ const authSlice = createSlice({
       })
       .addCase(acceptAppointment.rejected, (state, action) => {
         state.acceptStatus = 'failed';
+        state.error = action.payload;
+      })
+      .addCase(fetchSessionDuration.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchSessionDuration.fulfilled, (state, action) => {
+        state.sessionDuration = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchSessionDuration.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(getAppointmentsForStudent.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getAppointmentsForStudent.fulfilled, (state, action) => {
+        state.loading = false;
+        state.studentAppointments = action.payload;
+      })
+      .addCase(getAppointmentsForStudent.rejected, (state, action) => {
+        state.loading = false;
         state.error = action.payload;
       })
   },
