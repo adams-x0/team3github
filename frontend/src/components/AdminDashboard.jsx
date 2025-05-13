@@ -33,20 +33,55 @@ const openComplaints = 5
 
 
 const AdminDashboard = () => {
-    const navigate = useNavigate()
+    const navigate = useNavigate();
     const user = useSelector((state) => state.auth.user);
+    const [pendingTherapists, setPendingTherapists] = useState([]);
 
-    useEffect(() => { 
+    useEffect(() => {
         if (!user) {
             navigate('/login');
         } else if (user.role !== 'admin') {
             navigate('/login');
         }
     }, [user, navigate]);
-    
+
+    useEffect(() => {
+        fetch('http://localhost:5000/getPendingTherapists')
+            .then(res => res.json())
+            .then(data => setPendingTherapists(data))
+            .catch(err => console.error('Failed to fetch therapists', err));
+    }, []);
+
+    const approveTherapist = (therapist_id) => {
+        fetch('http://localhost:5000/verifyTherapist', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ therapist_id }),
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message);
+            setPendingTherapists(prev => prev.filter(t => t.therapist_id !== therapist_id));
+        });
+    };
+
+    const rejectTherapist = (therapist_id) => {
+        fetch('http://localhost:5000/rejectTherapist', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ therapist_id }),
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message);
+            setPendingTherapists(prev => prev.filter(t => t.therapist_id !== therapist_id));
+        });
+    };
+
     if (!user) {
         return <div>Loading...</div>;
     }
+
 
     return (
         <div>
@@ -80,53 +115,51 @@ const AdminDashboard = () => {
                         </AccordionSummary>
                         <AccordionDetails>
                             <List>
-                                {/* Sample: Pending Therapist Request 1 */}
-                                <ListItem
-                                    sx={{
-                                        border: "1px solid #ccc",
-                                        borderRadius: 2,
-                                        mb: 1,
-                                        transition: 'background-color 0.3s',
-                                        '&:hover': { backgroundColor: 'action.hover',
-                                        },
-                                        '&:focus': {
-                                            backgroundColor: 'primary.main',
-                                            color: 'white',
-                                        }
-                                    }}
-                                    onClick={() => navigate('/admin-dashboard')}
-                                >
-                                    <ListItemText
-                                        primary="Dr. Olivia Brown"
-                                        secondary="Specialization: Clinical Psychology | Requested: August 15, 2024 - 10:00 PM"
-                                    />
-                                    <Box display="flex" gap={1}>
-                                        <Button
-                                            variant="outlined"
-                                            color="success"
-                                            onClick={(e) => {
-                                                e.stopPropagation(); // Prevent triggering the ListItem onClick
+                                {pendingTherapists.length === 0 ? (
+                                    <Typography>No pending therapist requests.</Typography>
+                                ) : (
+                                    pendingTherapists.map(t => (
+                                        <ListItem
+                                            key={t.therapist_id}
+                                            sx={{
+                                                border: "1px solid #ccc",
+                                                borderRadius: 2,
+                                                mb: 1,
+                                                transition: 'background-color 0.3s',
+                                                '&:hover': { backgroundColor: 'action.hover' },
+                                                '&:focus': {
+                                                    backgroundColor: 'primary.main',
+                                                    color: 'white',
+                                                }
                                             }}
                                         >
-                                            Approve
-                                        </Button>
+                                            <ListItemText
+                                                primary={`${t.first_name} ${t.last_name}`}
+                                                secondary={`Specialization: ${t.specialization} | Email: ${t.email}`}
+                                            />
+                                            <Box display="flex" gap={1}>
+                                                <Button
+                                                    variant="outlined"
+                                                    color="success"
+                                                    onClick={() => approveTherapist(t.therapist_id)}
+                                                >
+                                                    Approve
+                                                </Button>
 
-                                        <Button
-                                            variant="contained"
-                                            color="error"
-                                            onClick={(e) => {
-                                                e.stopPropagation(); // Prevent triggering the ListItem onClick
-                                            }}
-                                        >
-                                            Reject
-                                        </Button>
-                                    </Box>
-
-                                </ListItem>
+                                                <Button
+                                                    variant="contained"
+                                                    color="error"
+                                                    onClick={() => rejectTherapist(t.therapist_id)}
+                                                >
+                                                    Reject
+                                                </Button>
+                                            </Box>
+                                        </ListItem>
+                                    ))
+                                )}
                             </List>
                         </AccordionDetails>
                     </Accordion>
-
 
                     {/* Monitor Appointments */}
                     <Accordion sx={{mt: 5, mb: 5 }}>
