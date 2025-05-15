@@ -22,7 +22,7 @@ import {
     Dialog,
     DialogContent,
     DialogTitle,
-    Grid
+    DialogActions
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
@@ -59,6 +59,9 @@ const ParentDashboard = () => {
     
     
     const [selectedChild, setSelectedChild] = useState('');
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [childEmail, setChildEmail] = useState('');
+    const [childPassword, setChildPassword] = useState('');
     const children = ["John Doe", "Jane Smith", "Alice Johnson"];
     const user = useSelector((state) => state.auth.user);
 
@@ -266,6 +269,15 @@ const ParentDashboard = () => {
         }
     };
 
+    const handleLinkChild = async () => {
+        console.log("Linking child with:", childEmail, childPassword);
+        // TODO: Replace with actual API call
+        setDialogOpen(false);
+        setChildEmail('');
+        setChildPassword('');
+        alert("Child account linked successfully!");
+    };
+
 
     return (
         <div>
@@ -277,17 +289,30 @@ const ParentDashboard = () => {
 
                     </Typography>
 
-                    {/* Add Child Section */}
-                    <Box mt={4} mb={4}>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => navigate('/guardian-register-child')}
-                        >
-                            Add a Child
-                        </Button>
-                    </Box>
-    
+                    {/* Manage Child Section */}
+                    <Accordion sx={{ mb: 5 }}>
+                        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                            <Typography variant="h6">Manage Child</Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <Box display="flex" flexDirection={{ xs: 'column', sm: 'row' }} gap={2}>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={() => navigate('/guardian-register-child')}
+                                >
+                                    Create Your Child’s Account
+                                </Button>
+                                <Button
+                                    variant="outlined"
+                                    color="primary"
+                                    onClick={() => setDialogOpen(true)}
+                                >
+                                    Link to Current Child Account
+                                </Button>
+                            </Box>
+                        </AccordionDetails>
+                    </Accordion>
                     {/* Book a Session & Find Therapist */}
                     <Accordion defaultExpanded sx={{ mb: 5 }}>
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -395,7 +420,6 @@ const ParentDashboard = () => {
                                     secondaryAction={
                                         
                                         <Box display="flex" gap={1}>
-                                            <Button variant="outlined" color="primary">Reschedule</Button>
                                             <Button variant="contained" color="error">Cancel</Button>
                                         </Box>
                                     }
@@ -436,41 +460,38 @@ const ParentDashboard = () => {
                             </List>
                         </AccordionDetails>
                     </Accordion>
-
-                    {/* Find Therapist */}
-                    <Accordion sx={{ mb: 5 }}>
-                        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                            <Typography variant="h6">Find Therapist</Typography>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                            <TextField label="Search by name, specialization ..." fullWidth />
-                            <Box mt={2}>
-                                <List>
-                                    <ListItem
-                                        onClick={() => navigate('/student-dashboard')}
-                                        sx={{
-                                            border: '1px solid #ccc',
-                                            borderRadius: 2,
-                                            mb: 1,
-                                            transition: 'background-color 0.3s',
-                                            '&:hover': { backgroundColor: 'action.hover',
-                                            },
-                                            '&:focus': {
-                                                backgroundColor: 'primary.main',
-                                                color: 'white',
-                                            }
-                                        }}
-                                        secondaryAction={<Button variant="outlined">View Profile</Button>}>
-                                    <ListItemText primary="Dr. Jane Doe" secondary="Specialization: Physical Therapy"/>
-                                </ListItem>
-                                </List>
-                            </Box>
-                        </AccordionDetails>
-                    </Accordion>
                 </Box>
+                <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
+                    <DialogTitle>Link to Child Account</DialogTitle>
+                    <DialogContent>
+                        <TextField
+                            autoFocus
+                            margin="dense"
+                            label="Child's Email"
+                            type="email"
+                            fullWidth
+                            value={childEmail}
+                            onChange={(e) => setChildEmail(e.target.value)}
+                        />
+                        <TextField
+                            margin="dense"
+                            label="Child's Password"
+                            type="password"
+                            fullWidth
+                            value={childPassword}
+                            onChange={(e) => setChildPassword(e.target.value)}
+                        />
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
+                        <Button variant="contained" onClick={handleLinkChild} disabled={!childEmail || !childPassword}>
+                            Link
+                        </Button>
+                    </DialogActions>
+                </Dialog>
             </Container>
         </div>
-    );    
+    );
 };
 
 export default ParentDashboard;
