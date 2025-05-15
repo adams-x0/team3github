@@ -92,6 +92,16 @@ def create_tables():
             )
         """)
 
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS ParentStudent (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                guardian_id INT,
+                student_id INT,
+                FOREIGN KEY (guardian_id) REFERENCES Guardians(guardian_id) ON DELETE CASCADE,
+                FOREIGN KEY (student_id) REFERENCES Students(student_id) ON DELETE CASCADE
+            )
+        """)
+
 
         conn.commit()
         cursor.close()

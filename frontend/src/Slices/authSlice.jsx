@@ -128,7 +128,6 @@ export const getAppointmentsForStudent = createAsyncThunk(
   'auth/getAppointmentsForStudent',
   async (userId, { rejectWithValue }) => {
     try {
-      console.warn(userId)
       const response = await axios.get(`${BASE_URL}/getAppointmentsForStudent/${userId}`);
       return response.data; // expected to be an array of appointments with therapist names
     } catch (error) {

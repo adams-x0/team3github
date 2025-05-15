@@ -12,7 +12,7 @@ const GuardianRegisterChild = () => {
 
     const user = useSelector((state) => state.auth.user);
 
-    useEffect(() => { 
+    useEffect(() => {
         if (!user) {
             navigate('/login');
         } else if (user.role !== 'guardian') {
