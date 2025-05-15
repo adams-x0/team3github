@@ -166,6 +166,82 @@ def add_child():
         return jsonify({"child": child_response}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+@app.route('/link-child', methods=['POST'])
+def link_child():
+    data = request.get_json()
+
+    required_fields = ['user_id', 'email', 'password']
+    if not all(field in data and data[field] for field in required_fields):
+        return jsonify({"error": "Missing required fields"}), 400
+
+    user_id = safe_escape(data['user_id'])
+    email = safe_escape(data['email'])
+    password = safe_escape(data['password'])
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        # Step 1: Get guardian_id using user_id
+        cursor.execute("SELECT guardian_id FROM Guardians WHERE user_id = %s", (user_id,))
+        guardian = cursor.fetchone()
+
+        if not guardian:
+            return jsonify({"error": "No guardian record found for this user ID"}), 404
+
+        guardian_id = guardian['guardian_id']
+
+        # Step 2: Find user by email
+        cursor.execute("SELECT * FROM Users WHERE email = %s", (email,))
+        student_user = cursor.fetchone()
+
+        if not student_user:
+            return jsonify({"error": "No user found with that email"}), 404
+
+        # Step 3: Verify password
+        if not bcrypt.checkpw(password.encode('utf-8'), student_user['password'].encode('utf-8')):
+            return jsonify({"error": "Incorrect password"}), 401
+
+        # Step 4: Check role
+        if student_user['role'].lower() != 'student':
+            return jsonify({"error": "This user is not a student"}), 400
+
+        # Step 5: Find student_id from Students table
+        cursor.execute("SELECT student_id FROM Students WHERE user_id = %s", (student_user['user_id'],))
+        student = cursor.fetchone()
+
+        if not student:
+            return jsonify({"error": "No student record found for this user"}), 404
+
+        student_id = student['student_id']
+
+        # Step 6: Check if already linked
+        cursor.execute("""
+            SELECT * FROM ParentStudent WHERE guardian_id = %s AND student_id = %s
+        """, (guardian_id, student_id))
+        existing_link = cursor.fetchone()
+
+        if existing_link:
+            return jsonify({"message": "This child is already linked to your account."}), 200
+
+        # Step 7: Insert into ParentStudent
+        cursor.execute("""
+            INSERT INTO ParentStudent (guardian_id, student_id)
+            VALUES (%s, %s)
+        """, (guardian_id, student_id))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return jsonify({
+            "message": "Child account successfully linked!",
+            "linked_student_id": student_id
+        }), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/addUsers', methods=['POST'])
 def add_user():

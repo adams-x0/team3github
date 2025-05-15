@@ -31,7 +31,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import { fetchAllTherapists } from "../Slices/GetSlice"
-import { bookAppointment, getAppointmentsByTherapistId } from '../Slices/authSlice'
+import { bookAppointment, getAppointmentsByTherapistId, linkChild } from '../Slices/authSlice'
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import dayjs from "dayjs";
@@ -270,12 +270,23 @@ const ParentDashboard = () => {
     };
 
     const handleLinkChild = async () => {
-        console.log("Linking child with:", childEmail, childPassword);
-        // TODO: Replace with actual API call
-        setDialogOpen(false);
-        setChildEmail('');
-        setChildPassword('');
-        alert("Child account linked successfully!");
+        try {
+            const resultAction = dispatch(
+            linkChild({ user_id: user.user_id, email: childEmail, password: childPassword }));
+
+            if (linkChild.fulfilled.match(resultAction)) {
+                alert(resultAction.payload.message || "Child account linked successfully!");
+                setDialogOpen(false);
+            } else {
+                // rejected case handled here
+                alert(resultAction.payload || "Failed to link child account.");
+            }
+        } catch (error) {
+            alert(error);
+        } finally {
+            setChildEmail('');
+            setChildPassword('');
+        }
     };
 
 

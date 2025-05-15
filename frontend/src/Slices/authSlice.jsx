@@ -58,6 +58,21 @@ export const fetchTherapistAvailabilityByUserId = createAsyncThunk(
   }
 );
 
+export const linkChild = createAsyncThunk(
+  'auth/linkChild',
+  async ({ user_id, email, password }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(`${BASE_URL}/link-child`, {
+        user_id,
+        email,
+        password
+      });
+      return response.data; // Contains message and linked_student_id
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.error || 'Linking failed');
+    }
+  }
+);
 
 // Async thunk for logging in
 export const loginUser = createAsyncThunk(
@@ -184,10 +199,11 @@ const initialState = {
   cancellationStatus: null,
   availabilityLoading: false,
   acceptStatus: 'idle',
-
-  // Add these
   bookingStatus: 'idle',
   bookingError: null,
+  linkStatus: 'idle',
+  linkError: null,
+  linkedStudentId: null,
 };
 
 // Auth slice
@@ -209,6 +225,9 @@ const authSlice = createSlice({
       state.bookingStatus = null;
       state.bookingError = null;
       state.acceptStatus = 'idle';
+      state.linkStatus = 'idle';
+      state.linkError = null;
+      state.linkedStudentId = null;
     },
   },
   extraReducers: (builder) => {
@@ -230,6 +249,23 @@ const authSlice = createSlice({
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      .addCase(linkChild.pending, (state) => {
+        state.linkStatus = 'loading';
+        state.linkError = null;
+        state.linkedStudentId = null;
+      })
+      // linkChild fulfilled
+      .addCase(linkChild.fulfilled, (state, action) => {
+        state.linkStatus = 'succeeded';
+        state.linkError = null;
+        state.linkedStudentId = action.payload.linked_student_id || null;
+      })
+      // linkChild rejected
+      .addCase(linkChild.rejected, (state, action) => {
+        state.linkStatus = 'failed';
+        state.linkError = action.payload;
+        state.linkedStudentId = null;
       })
       // registerUser pending
       .addCase(registerUser.pending, (state) => {
