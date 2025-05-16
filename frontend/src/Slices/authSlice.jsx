@@ -153,6 +153,20 @@ export const getAppointmentsByTherapistId = createAsyncThunk(
   }
 );
 
+// Async thunk to fetch appointments by student ID
+export const getAppointmentsByStudentId = createAsyncThunk(
+  'auth/getAppointmentsByStudentId',
+  async (studentId, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/getAppointmentsByStudent/${studentId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching student appointments:', error);
+      return rejectWithValue(error.response?.data || 'Server Error');
+    }
+  }
+);
+
 export const fetchSessionDuration = createAsyncThunk(
   'auth/fetchSessionDuration',
   async (userId, { rejectWithValue }) => {
@@ -394,6 +408,19 @@ const authSlice = createSlice({
       .addCase(getAppointmentsByTherapistId.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      .addCase(getAppointmentsByStudentId.pending, (state) => {
+        state.loading = 'loading';
+        state.error = null;
+      })
+      .addCase(getAppointmentsByStudentId.fulfilled, (state, action) => {
+        state.loading = false;
+        state.studentAppointments = action.payload;
+        state.error = null;
+      })
+      .addCase(getAppointmentsByStudentId.rejected, (state, action) => {
+        state.loading = false;
+        state.error= action.payload;
       })
       .addCase(getAppointmentsByUserId.pending, (state) => {
         state.loading = true;

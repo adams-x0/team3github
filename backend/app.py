@@ -592,6 +592,46 @@ def get_appointments_by_therapist(therapist_id):
         print(f"[✖] Error retrieving appointments: {e}")
         return jsonify({'error': 'Failed to fetch appointments'}), 500
 
+@app.route('/getAppointmentsByStudent/<int:student_id>', methods=['GET'])
+def get_appointments_by_student(student_id):
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        cursor.execute("""
+            SELECT a.appointment_id, a.date, a.time, a.status, u.first_name, u.last_name
+            FROM Appointments a
+            JOIN Therapists t ON a.therapist_id = t.therapist_id
+            JOIN Users u ON t.user_id = u.user_id
+            WHERE a.student_id = %s
+            ORDER BY a.date, a.time
+        """, (student_id,))
+
+        rows = cursor.fetchall()
+
+        appointments = []
+        for row in rows:
+            appointment_id, date, time, status, first_name, last_name = row
+
+            formatted_time = time.strftime('%H:%M') if hasattr(time, 'strftime') else str(time)
+
+            appointments.append({
+                'appointment_id': appointment_id,
+                'date': date.strftime('%Y-%m-%d'),
+                'time': formatted_time,
+                'status': status,
+                'therapist_name': f"{first_name} {last_name}"
+            })
+
+        cursor.close()
+        connection.close()
+
+        return jsonify(appointments), 200
+
+    except Exception as e:
+        print(f"[✖] Error fetching appointments for student {student_id}: {e}")
+        return jsonify({'error': 'Failed to fetch appointments'}), 500
+
 @app.route('/getSessionDuration/<int:user_id>', methods=['GET'])
 def get_session_duration(user_id):
     try:
