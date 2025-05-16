@@ -314,6 +314,13 @@ def login():
         if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
             user.pop('password', None)
 
+            # Add student_id if role is student
+            if user['role'] == 'student':
+                cursor.execute("SELECT student_id FROM Students WHERE user_id = %s", (user['user_id'],))
+                student = cursor.fetchone()
+                if student:
+                    user['student_id'] = student['student_id']
+
             # If guardian, get guardian_id from Guardians table
             if user['role'] == 'guardian':
                 cursor.execute("SELECT guardian_id FROM Guardians WHERE user_id = %s", (user['user_id'],))

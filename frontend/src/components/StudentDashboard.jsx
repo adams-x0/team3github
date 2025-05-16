@@ -265,7 +265,7 @@ const StudentDashboard = () => {
     }
 
     const appointmentData = {
-        student_id: user.user_id,
+        student_id: user.student_id,
         therapist_id: selectedTherapistId,
         date: selectedDate.format("YYYY-MM-DD"),
         time: selectedTime,
