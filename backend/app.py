@@ -111,62 +111,6 @@ def create_tables():
 
     except Exception as e:
         print(f"[✖] Error creating tables: {e}")
-
-@app.route('/addChild', methods=['POST'])
-def add_child():
-    data = request.get_json()
-
-    # Validate required fields
-    required_fields = ['guardian_id', 'firstName', 'lastName', 'dob', 'address']
-    if not all(field in data and data[field] for field in required_fields):
-        return jsonify({"error": "Missing required fields"}), 400
-    
-    # Extract fields
-    guardian_id = data['guardian_id']
-    first_name = data['firstName']
-    last_name = data['lastName']
-    phone = data.get('phone', '')
-    email = data.get('email', '')
-    address = data['address']
-    dob = data['dob'] 
-
-    # check for html injection
-    guardian_id = safe_escape(guardian_id)
-    first_name = safe_escape(first_name)
-    last_name = safe_escape(last_name)
-    phone = safe_escape(phone)
-    email = safe_escape(email)
-    address = safe_escape(address)
-    dob = safe_escape(dob)
-
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        # Insert the child
-        cursor.execute("""
-            INSERT INTO Children (address, date_of_birth, email, first_name, guardian_id, last_name, phone)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)""", (address, dob, email, first_name, guardian_id, last_name, phone))
-        
-        child_id = cursor.lastrowid
-        conn.commit()
-        cursor.close()
-        conn.close()
-
-        child_response = {
-            "child_id": child_id,
-            "first_name": first_name,
-            "last_name": last_name,
-            "guardian_id": guardian_id,
-            "address": address,
-            "dob": dob,
-            "phone": phone,
-            "email": email
-        }
-
-        return jsonify({"child": child_response}), 201
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
     
 @app.route('/link-child', methods=['POST'])
 def link_child():

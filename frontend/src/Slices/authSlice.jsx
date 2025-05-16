@@ -16,18 +16,6 @@ export const registerUser = createAsyncThunk(
   }
 );
 
-export const registerChild = createAsyncThunk(
-  'auth/registerChild',
-  async (childData, { rejectWithValue }) => {
-    try {
-      const response = await axios.post(`${BASE_URL}/addChild`, childData);
-      return response.data.child;
-    } catch (error) { 
-      return rejectWithValue(error.response?.data?.error || 'Child registration failed');
-    }
-  }
-);
-
 // Async thunk to update default availability
 export const updateDefaultAvailability = createAsyncThunk(
   'auth/updateDefaultAvailability',
@@ -320,32 +308,18 @@ const authSlice = createSlice({
       })
       // registerUser success
       .addCase(registerUser.fulfilled, (state, action) => {
-        state.user = action.payload;
+        // state.user = action.payload;
         state.defaultAvailability = null;
         state.loading = false;
         state.error = null;
-        localStorage.setItem('user', JSON.stringify(action.payload));
+        alert('Registration successful!'); // 
+        // localStorage.setItem('user', JSON.stringify(action.payload));
       })
       // registerUser error
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      })
-      // registerChild pending
-      .addCase(registerChild.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      // registerChild success
-      .addCase(registerChild.fulfilled, (state, action) => {
-        state.loading = false;
-        state.error = null;
-        alert('Child registration successful!'); // Optional: Show success alert
-      })
-      // registerChild error
-      .addCase(registerChild.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
+        alert('Unsuccessful Registration !'); // 
       })
       //Update default availability Success
       .addCase(updateDefaultAvailability.fulfilled, (state, action) => {

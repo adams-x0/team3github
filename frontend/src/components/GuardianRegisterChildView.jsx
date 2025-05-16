@@ -1,44 +1,92 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import '../css/register.css'
 import { useNavigate } from 'react-router-dom';
+import zxcvbn from "zxcvbn"; // Import zxcvbn for password strength checking
 import { useDispatch } from 'react-redux';
-import { registerChild } from '../Slices/authSlice';
-import { useSelector } from "react-redux";
-
+import { registerUser } from '../Slices/authSlice';
 
 const GuardianRegisterChild = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-
-    const user = useSelector((state) => state.auth.user);
-
-    useEffect(() => {
-        if (!user) {
-            navigate('/login');
-        } else if (user.role !== 'guardian') {
-            navigate('/login');
-        }
-    }, [user, navigate]);
-    
-    if (!user) {
-        return <div>Loading...</div>;
-    }
 
     const [formData, setFormData] = useState({
         firstName: "",
         lastName: "",
         email: "",
         phone: "",
+        role: "student",
+        password: "",
+        confirmPassword: "",
         address: "",
         dateFields: {
             dobMonth: "",
             dobDay: "",
             dobYear: "",
         },
-        guardian_id: user.guardian_id,
     })
 
+    const [passwordStrength, setPasswordStrength] = useState(0); // State to hold password strength
+    const [passwordFocused, setPasswordFocused] = useState(false); // State to track if password input is focused
+    const [passwordMatch, setPasswordMatch] = useState(false); // State to track if passwords match
 
+    // Handle password change
+    const handlePasswordChange = (e) => {
+        const newPassword = e.target.value;
+        setFormData({ ...formData, password: newPassword });
+
+        const userInputs = [
+            formData.firstName,
+            formData.lastName,
+            formData.username,
+            formData.email,
+            formData.phone,
+        ]
+
+        // Evaluate password strength
+        const result = zxcvbn(newPassword, userInputs);
+        setPasswordStrength(result.score); // Set password strength score
+
+        // check password match immediately after password change
+        if (newPassword === formData.confirmPassword) {
+            setPasswordMatch(true);
+        } else {
+            setPasswordMatch(false);
+        }
+    }
+
+    // Handle confirm password change
+    const handleConfirmPasswordChange = (e) => {
+        const newConfirmPassword = e.target.value;
+        setFormData({ ...formData, confirmPassword: newConfirmPassword });
+
+        // Check if passwords match
+        if (newConfirmPassword === formData.password) {
+            setPasswordMatch(true);
+        } else {
+            setPasswordMatch(false);
+        }
+    };
+
+
+    // Helper function to get password strength label
+    const getPasswordStrengthLabel = (score) => {
+        switch (score) {
+            case 0:
+                return "very-weak";
+            case 1:
+                return "weak";
+            case 2:
+                return "fair";
+            case 3:
+                return "strong";
+            case 4:
+                return "very-strong";
+            default:
+                return "";
+        }
+    }
+
+    
 
     // Handle input change
     const handleInputChange = (e) => {
@@ -56,6 +104,7 @@ const GuardianRegisterChild = () => {
     }
 
     const handleNext = async () => {
+        if (formData.password !== formData.confirmPassword) return;
     
         const { dobYear, dobMonth, dobDay } = formData.dateFields;
 
@@ -68,29 +117,17 @@ const GuardianRegisterChild = () => {
             ...formData,
             dob: dob,
         };
-
-
     
         try {
-            console.log("Form data before dispatch:", fullFormData);
-            const result = await dispatch(registerChild(fullFormData));
-            if (registerChild.fulfilled.match(result)) {
-                navigate('/parent-dashboard'); // Navigate after 1 second
-
-                setFormData({
-                    firstName: "",
-                    lastName: "",
-                    email: "",
-                    phone: "",
-                    address: "",
-                    dateFields: {
-                        dobMonth: "",
-                        dobDay: "",
-                        dobYear: "",
-                    },
-                    guardian_id: user.guardian_id,
-                })
-
+            const result = await dispatch(registerUser(fullFormData));
+            if (registerUser.fulfilled.match(result)) {
+                switch (formData.role) {
+                    case 'student':  
+                        navigate('/parent-dashboard');
+                        break;
+                    default:
+                        navigate('/');
+                }
             } else {
                 console.error('Registration failed:', result.payload);
             }
@@ -109,7 +146,7 @@ const GuardianRegisterChild = () => {
             <div className="register-modal-box">
                 <header className="header">
                     <h1>Register Child</h1>
-                    <p>Fill in the details below with child information.</p>
+                    <h5>Input information of the child you want to register</h5>
                 </header>
 
                 {/* Registration Form */}
@@ -130,15 +167,15 @@ const GuardianRegisterChild = () => {
                     <div className="register-input-group">
                         <div className="register-input">
                             <label>Email address</label>
-                            <input aria-required="true" id="email" maxLength={256} name="email" type="text" placeholder="Enter email address" value={formData.email} onChange={handleInputChange}  />
+                            <input aria-required="true" id="email" maxLength={256} name="email" type="text" placeholder="Enter email address" value={formData.email} onChange={handleInputChange} required />
                         </div>
                         <div className="register-input">
                             <label>Phone number</label>
-                            <input aria-required="true" id="phone" maxLength="10" name="phone" type="text" placeholder="Enter your phone number" value={formData.phone} onChange={handleInputChange}  />
+                            <input aria-required="true" id="phone" maxLength="10" name="phone" type="text" placeholder="Enter your phone number" value={formData.phone} onChange={handleInputChange} required />
                         </div>
                     </div>
 
-                    {/* Address input */}
+                    {/* Address & Role input */}
                     <div className="register-input-group">
                         <div className="register-input">
                             <label>Address</label>
@@ -184,6 +221,32 @@ const GuardianRegisterChild = () => {
 
                         </fieldset>
                     </div>
+
+                    {/* Password Input */}
+                    <div className="password-group">
+                        <label>Password</label>
+                        <input aria-required="true" id="password" maxLength={256} name="password" type="password" placeholder="Enter password" value={formData.password} onChange={handlePasswordChange} onFocus={() => setPasswordFocused(true)} onBlur={() => setPasswordFocused(false)} required />
+                    </div>
+
+                    {/*Confirm password input */}
+                    <div className="password-group">
+                        <label>Confirm Password</label>
+                        <input aria-required="true" id="confirmPassword" maxLength={256} name="confirmPassword" type="password" placeholder="Confirm password" value={formData.confirmPassword} onChange={handleConfirmPasswordChange} required />
+                    </div>
+
+                    {/* Password Strength Label */}
+                    {formData.password && passwordFocused && (
+                        <div className={`password-strength ${getPasswordStrengthLabel(passwordStrength).toLowerCase()}`}>
+                            <p>Password Strength: {getPasswordStrengthLabel(passwordStrength)}</p>
+                        </div>
+                    )}
+
+                    {/* Password Match Error Message  */}
+                    {!passwordMatch && formData.confirmPassword && (
+                        <div className="password-match-error">
+                            <p>Passwords do not match</p>
+                        </div>
+                    )}
 
                     
                     
