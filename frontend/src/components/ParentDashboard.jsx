@@ -69,6 +69,7 @@ const ParentDashboard = () => {
     const linkStatus = useSelector((state) => state.auth.linkStatus);
     const bookingStatus = useSelector((state) => state.auth.bookingStatus);
     const studentAppointments = useSelector((state) => state.auth.studentAppointments);
+    const cancellationStatus = useSelector((state) => state.auth.cancellationStatus);
 
     useEffect(() => {
         fetchAllTherapists(setTherapists);
@@ -90,7 +91,7 @@ const ParentDashboard = () => {
                     }
                 });
         }
-    }, [dispatch, selectedTherapistId, bookingStatus]);
+    }, [dispatch, selectedTherapistId, bookingStatus, cancellationStatus]);
 
     useEffect(() => {
         if (user) {
@@ -147,20 +148,17 @@ const ParentDashboard = () => {
 
     const shouldDisableDate = (date) => {
         const dateStr = date.format('YYYY-MM-DD');
-        const isPast = date.isBefore(dayjs(), 'day');
+        const isBeforeToday = date.isBefore(dayjs(), 'day');
         const isNotAvailable = !availableDates.has(dateStr);
-
-        // Check if all possible slots for the day are booked
         const availabilityArray = JSON.parse(selectedTherapist?.default_availability || '[]');
         const sessionDuration = parseInt(selectedTherapist?.session_duration || "60", 10);
-
         const slotsForDay = availabilityArray.filter(slot =>
             dayjs(slot.start).format('YYYY-MM-DD') === dateStr
         );
 
         let totalPossibleSlots = 0;
         let bookedCount = 0;
-
+        let futureSlotExists = false;
         slotsForDay.forEach(slot => {
             let current = dayjs(slot.start);
             const end = dayjs(slot.end);
@@ -177,24 +175,29 @@ const ParentDashboard = () => {
                     false;
 
                 if (isValidStart) {
-                    totalPossibleSlots++;
+                    const isInFuture = current.isAfter(dayjs());
                     const formattedTime = current.format('HH:mm');
                     const isBooked = therapistAppointments.some(
                         appt => appt.date === dateStr && appt.time === formattedTime
                     );
+
+                    if (!isBooked && isInFuture) {
+                        futureSlotExists = true;
+                    }
                     if (isBooked) {
                         bookedCount++;
                     }
+
+                    totalPossibleSlots++;
                     current = current.add(sessionDuration, 'minute');
                 } else {
                     current = current.add(15, 'minute');
                 }
             }
         });
-
         const isFullyBooked = totalPossibleSlots > 0 && bookedCount === totalPossibleSlots;
-
-        return isPast || isNotAvailable || isFullyBooked;
+        const noUsableSlots = totalPossibleSlots === 0 || !futureSlotExists;
+        return isBeforeToday || isNotAvailable || isFullyBooked || noUsableSlots;
     };
 
     const handleDateChange = (newValue) => {
