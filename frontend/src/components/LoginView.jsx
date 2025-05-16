@@ -58,6 +58,10 @@ const handleNext = async (e) => {
       console.error('Login failed:', error);
     }
   }
+
+  else {
+    alert("Please enter email and password.")
+  }
 };
 
 
