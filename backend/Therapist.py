@@ -1,5 +1,5 @@
 class Therapist:
-    def __init__(self, first_name, last_name, date_of_birth, phone_number, address, password, email_address):
+    def __init__(self, first_name, last_name, date_of_birth, phone_number, address, password, email_address, license_number, specialization):
         self.first_name = first_name
         self.last_name = last_name
         self.date_of_birth = date_of_birth
@@ -7,7 +7,9 @@ class Therapist:
         self.address = address
         self.password = password
         self.email_address = email_address
-        # self.license_number = license_number
+        self.license_number = license_number
+        self.specialization = specialization
+        
 
     # Getters
     def get_first_name(self):
@@ -33,6 +35,12 @@ class Therapist:
 
     def get_email_address(self):
         return self.email_address
+    
+    def get_license_number(self):
+        return self.license_number
+    
+    def get_specialization(self):
+        return self.specialization
 
     # Setters
     def set_first_name(self, first_name):
@@ -55,5 +63,11 @@ class Therapist:
 
     def set_email_address(self, email_address):
         self.email_address = email_address
+
+    def set_license_number(self, license_number):
+        self.license_number = license_number
+
+    def set_specialization(self, specialization):
+        self.specialization = specialization
 
     

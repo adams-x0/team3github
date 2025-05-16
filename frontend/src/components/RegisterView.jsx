@@ -18,6 +18,8 @@ const Register = () => {
         password: "",
         confirmPassword: "",
         address: "",
+        licenseNumber: "",  
+        specialization: "", 
         dateFields: {
             dobMonth: "",
             dobDay: "",
@@ -232,7 +234,37 @@ const Register = () => {
                             </select>
                         </div>
                     </div>
-
+                    {/* Therapist Specific Fields */}
+                    {formData.role === "therapist" && (
+                        <div className="register-input-group">
+                            <div className="register-input">
+                                <label>License Number</label>
+                                <input
+                                    aria-required="true"
+                                    id="licenseNumber"
+                                    name="licenseNumber"
+                                    type="text"
+                                    placeholder="Enter license number"
+                                    value={formData.licenseNumber || ""}
+                                    onChange={handleInputChange}
+                                    required
+                                />
+                            </div>
+                            <div className="register-input">
+                                <label>Specialization</label>
+                                <input
+                                    aria-required="true"
+                                    id="specialization"
+                                    name="specialization"
+                                    type="text"
+                                    placeholder="Enter specialization"
+                                    value={formData.specialization || ""}
+                                    onChange={handleInputChange}
+                                    required
+                                />
+                            </div>
+                        </div>
+                    )}
                     {/* Date of birth */}
                     <div className="input-group">
                         <label>Date of Birth</label>
