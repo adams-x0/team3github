@@ -17,12 +17,14 @@ import {
     TableRow,
     TableCell,
     TableBody,
+    Tooltip,
     MenuItem,
     TableContainer,
     Dialog,
     DialogContent,
     DialogTitle,
-    DialogActions
+    DialogActions,
+    Grid
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
@@ -56,16 +58,14 @@ const ParentDashboard = () => {
     const [selectedSpecialization, setSelectedSpecialization] = useState('');
     const [openTimesModal, setOpenTimesModal] = useState(false);
     const [therapistAppointments, setTherapistAppointments] = useState([]);
-    
-    
-    const [selectedChild, setSelectedChild] = useState('');
+    const [selectedStudent, setSelectedStudent] = useState('');
     const [dialogOpen, setDialogOpen] = useState(false);
     const [childEmail, setChildEmail] = useState('');
     const [childPassword, setChildPassword] = useState('');
-    const children = ["John Doe", "Jane Smith", "Alice Johnson"];
     const user = useSelector((state) => state.auth.user);
     const studentRelationships = useSelector((state) => state.auth.studentRelationship);
     const linkStatus = useSelector((state) => state.auth.linkStatus);
+    const bookingStatus = useSelector((state) => state.auth.bookingStatus);
 
     useEffect(() => {
         fetchAllTherapists(setTherapists);
@@ -87,7 +87,7 @@ const ParentDashboard = () => {
                     }
                 });
         }
-    }, [dispatch, selectedTherapistId]);
+    }, [dispatch, selectedTherapistId, bookingStatus]);
 
     useEffect(() => {
         if (user) {
@@ -141,38 +141,38 @@ const ParentDashboard = () => {
             dayjs(slot.start).format('YYYY-MM-DD')
         )
         ) : new Set();
-    
+
     const shouldDisableDate = (date) => {
         const dateStr = date.format('YYYY-MM-DD');
         const isPast = date.isBefore(dayjs(), 'day');
         const isNotAvailable = !availableDates.has(dateStr);
-        
+
         // Check if all possible slots for the day are booked
         const availabilityArray = JSON.parse(selectedTherapist?.default_availability || '[]');
         const sessionDuration = parseInt(selectedTherapist?.session_duration || "60", 10);
-        
+
         const slotsForDay = availabilityArray.filter(slot =>
             dayjs(slot.start).format('YYYY-MM-DD') === dateStr
         );
-        
+
         let totalPossibleSlots = 0;
         let bookedCount = 0;
-        
+
         slotsForDay.forEach(slot => {
             let current = dayjs(slot.start);
             const end = dayjs(slot.end);
-        
+
             while (current.isBefore(end) || current.isSame(end)) {
                 const sessionEnd = current.add(sessionDuration, 'minute');
                 if (sessionEnd.isAfter(end)) break;
-        
+
                 const minute = current.minute();
                 const isValidStart =
                     sessionDuration === 45 ? minute % 15 === 0 :
                     sessionDuration === 30 ? minute % 30 === 0 :
                     sessionDuration === 60 ? minute === 0 :
                     false;
-        
+
                 if (isValidStart) {
                     totalPossibleSlots++;
                     const formattedTime = current.format('HH:mm');
@@ -188,61 +188,57 @@ const ParentDashboard = () => {
                 }
             }
         });
-        
+
         const isFullyBooked = totalPossibleSlots > 0 && bookedCount === totalPossibleSlots;
-        
+
         return isPast || isNotAvailable || isFullyBooked;
     };
-    
+
     const handleDateChange = (newValue) => {
         setSelectedDate(newValue);
         const selectedDateStr = newValue.format('YYYY-MM-DD');
-    
+
         if (selectedTherapist) {
             try {
                 const availabilityArray = JSON.parse(selectedTherapist.default_availability || '[]');
                 const sessionDuration = parseInt(selectedTherapist.session_duration || "60", 10);
-    
+
                 const matchingSlots = availabilityArray.filter(slot =>
                     dayjs(slot.start).format('YYYY-MM-DD') === selectedDateStr
                 );
-    
+
                 let generatedSlots = [];
-    
+
                 matchingSlots.forEach(slot => {
                     let current = dayjs(slot.start);
                     const end = dayjs(slot.end);
-    
+
                     while (current.isBefore(end) || current.isSame(end)) {
                         const sessionEnd = current.add(sessionDuration, 'minute');
                         if (sessionEnd.isAfter(end)) break;
-    
+
                         const minute = current.minute();
                         const isValidStart =
                             sessionDuration === 45 ? minute % 15 === 0 :
                             sessionDuration === 30 ? minute % 30 === 0 :
                             sessionDuration === 60 ? minute === 0 :
                             false;
-    
+
                         if (isValidStart) {
                             const formattedTime = current.format('HH:mm');
-    
                             // Exclude booked time slots
                             const isBooked = therapistAppointments.some(
                                 appt => appt.date === selectedDateStr && appt.time === formattedTime
                             );
-    
                             if (!isBooked) {
                                 generatedSlots.push(formattedTime);
                             }
-    
                             current = current.add(sessionDuration, 'minute');
                         } else {
                             current = current.add(15, 'minute');
                         }
                     }
                 });
-    
                 setAvailableTimes(generatedSlots);
                 setOpenTimesModal(generatedSlots.length > 0);
             } catch (error) {
@@ -252,22 +248,21 @@ const ParentDashboard = () => {
             }
         }
     };
-        
-    
+
     const handleBookSession = async () => {
-        if (!selectedTherapistId || !selectedTime || !selectedDate) {
+        if (!selectedTherapistId || !selectedTime || !selectedDate || !selectedStudent) {
             alert("Please select a therapist, date, and time.");
             return;
         }
-            
+
         const appointmentData = {
-            student_id: 1,  // child_id
+            student_id: selectedStudent.student_id,
             therapist_id: selectedTherapistId,
             date: selectedDate.format("YYYY-MM-DD"),
             time: selectedTime,
             location: "Online",
         };
-            
+
         const result = await dispatch(bookAppointment(appointmentData));
 
         if (bookAppointment.fulfilled.match(result)) {
@@ -297,218 +292,200 @@ const ParentDashboard = () => {
         }
     };
 
-
-    return (
-        <div>
+        return (
+            <div>
             <ParentNavbar />
             <Container>
                 <Box pb={8}>
-                    <Typography variant="h4" align="center" gutterBottom mt={4}>
-                        Welcome, {user.first_name} {user.last_name}
+                <Typography variant="h4" align="center" gutterBottom mt={4}>
+                    Welcome, {user.first_name} {user.last_name}
+                </Typography>
 
-                    </Typography>
+                {/* Book a Session & Find Therapist */}
+                <Accordion defaultExpanded sx={{ mb: 5 }}>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    <Typography variant="h6">Book a Session</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        {/* Child Selector */}
+                        <TextField
+                            select
+                            label="Select a Child"
+                            value={selectedStudent ? selectedStudent.student_id : ''}
+                            onChange={(e) => {
+                                const student = studentRelationships.find(s => s.student_id === parseInt(e.target.value));
+                                setSelectedStudent(student);
+                            }}
+                            fullWidth
+                            margin="normal"
+                        >
+                            <MenuItem value="" disabled>Select a child</MenuItem>
+                            {studentRelationships.map((student) => (
+                                <MenuItem key={student.student_id} value={student.student_id}>
+                                    {student.first_name} {student.last_name}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+                        <Box display="flex" flexDirection={{ xs: "column", md: "row" }} justifyContent="space-between">
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DateCalendar
+                                value={selectedDate}
+                                onChange={handleDateChange}
+                                shouldDisableDate={shouldDisableDate}
+                            />
+                            </LocalizationProvider>
+                        </Box>
+                        <Typography variant="h6" mb={2}>
+                            Find a Therapist
+                        </Typography>
 
-                    {/* Manage Child Section */}
-                    <Accordion sx={{ mb: 5 }}>
-                        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                            <Typography variant="h6">Manage Child</Typography>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                        <Box display="flex" flexDirection={{ xs: 'column', sm: 'row' }} gap={2} mb={2}>
-                            <Button
+                        <TextField
+                            label="Search Therapist by Name"
+                            variant="outlined"
+                            fullWidth
+                            margin="normal"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+
+                        <TextField
+                            select
+                            label="Filter by Specialization"
+                            value={selectedSpecialization}
+                            onChange={(e) => setSelectedSpecialization(e.target.value)}
+                            fullWidth
+                            margin="normal"
+                        >
+                            <MenuItem value="">All Specializations</MenuItem>
+                            {allSpecializations.map((spec, idx) => (
+                                <MenuItem key={idx} value={spec}>{spec}</MenuItem>
+                            ))}
+                        </TextField>
+
+                        {/* Therapist Table */}
+                        <Box flexGrow={1}>
+                            <TableContainer component={Paper}>
+                                <Table>
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell onClick={() => handleSort('first_name')} style={{ cursor: 'pointer' }}>
+                                                First Name {sortBy === 'first_name' && (sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" /> : <ArrowDownwardIcon fontSize="small" />)}
+                                            </TableCell>
+                                            <TableCell onClick={() => handleSort('last_name')} style={{ cursor: 'pointer' }}>
+                                                Last Name {sortBy === 'last_name' && (sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" /> : <ArrowDownwardIcon fontSize="small" />)}
+                                            </TableCell>
+                                            <TableCell onClick={() => handleSort('specialization')} style={{ cursor: 'pointer' }}>
+                                                Specialization {sortBy === 'specialization' && (sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" /> : <ArrowDownwardIcon fontSize="small" />)}
+                                            </TableCell>
+                                            <TableCell>Select</TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {sortedTherapists.map((therapist) => (
+                                            <TableRow
+                                                key={therapist.therapist_id}
+                                                hover
+                                                sx={{ cursor: selectedStudent ? 'pointer' : 'not-allowed' }}
+                                            >
+                                                <TableCell>{therapist.first_name}</TableCell>
+                                                <TableCell>{therapist.last_name}</TableCell>
+                                                <TableCell>{therapist.specialization}</TableCell>
+                                                <TableCell>
+                                                    <Tooltip title={!selectedStudent ? "Must select child first" : ""}>
+                                                        <span>
+                                                            <Button
+                                                                onClick={() => selectedStudent && setSelectedTherapistId(therapist.therapist_id)}
+                                                                variant={selectedTherapistId === therapist.therapist_id ? "contained" : "outlined"}
+                                                                disabled={!selectedStudent}
+                                                            >
+                                                                Select
+                                                            </Button>
+                                                        </span>
+                                                    </Tooltip>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        </Box>
+                    </AccordionDetails>
+                </Accordion>
+
+                {/* Manage Child Section */}
+                <Accordion sx={{ mb: 5 }}>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                        <Typography variant="h6">Manage Child</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                    <Box display="flex" flexDirection={{ xs: 'column', sm: 'row' }} gap={2} mb={2}>
+                        <Button
                             variant="contained"
                             color="primary"
                             onClick={() => navigate('/guardian-register-child')}
-                            >
+                        >
                             Create Your Child’s Account
-                            </Button>
-                            <Button
+                        </Button>
+                        <Button
                             variant="outlined"
                             color="primary"
                             onClick={() => setDialogOpen(true)}
-                            >
+                        >
                             Link to Current Child Account
-                            </Button>
-                        </Box>
+                        </Button>
+                    </Box>
 
-                        {/* Display linked students */}
-                        {studentRelationships.length > 0 ? (
-                            <Box mt={2}>
-                            <Typography variant="subtitle1" gutterBottom>
-                                Linked Children:
-                            </Typography>
-                            {studentRelationships.map((student, index) => (
-                                <Box
-                                key={index}
-                                sx={{
-                                    p: 2,
-                                    border: '1px solid #ccc',
-                                    borderRadius: 2,
-                                    mb: 1,
-                                    backgroundColor: '#f9f9f9'
-                                }}
-                                >
-                                <Typography>
-                                    <strong>Name:</strong> {student.first_name} {student.last_name}
-                                </Typography>
-                                <Typography>
-                                    <strong>Email:</strong> {student.email}
-                                </Typography>
-                                </Box>
-                            ))}
-                            </Box>
-                        ) : (
-                            <Typography variant="body2" mt={2}>No linked children yet.</Typography>
-                        )}
-                        </AccordionDetails>
-                    </Accordion>
-                    {/* Book a Session & Find Therapist */}
-                    <Accordion defaultExpanded sx={{ mb: 5 }}>
-                        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                            <Typography variant="h6">Book a Session</Typography>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                        <Box display="flex" flexDirection={{ xs: "column", md: "row" }} justifyContent="space-between">
-                            {/* ✅ Always show calendar */}
-                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                <DateCalendar
-                                    value={selectedDate}
-                                    onChange={handleDateChange}
-                                    shouldDisableDate={shouldDisableDate}
-                                />
-                            </LocalizationProvider>
-                        </Box>
-                            <Typography variant="h6" mb={2}>
-                                Find a Therapist
-                            </Typography>
-
-                            {/* Search Field */}
-                            <TextField
-                                label="Search Therapist by Name"
-                                variant="outlined"
-                                fullWidth
-                                margin="normal"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                            />
-
-                            <TextField
-                                select
-                                label="Filter by Specialization"
-                                value={selectedSpecialization}
-                                onChange={(e) => setSelectedSpecialization(e.target.value)}
-                                fullWidth
-                                margin="normal"
+                    {studentRelationships.length > 0 ? (
+                        <Box mt={2}>
+                        <Typography variant="subtitle1" gutterBottom>
+                            Linked Children:
+                        </Typography>
+                        {studentRelationships.map((student, index) => (
+                            <Box
+                            key={index}
+                            sx={{
+                                p: 2,
+                                border: '1px solid #ccc',
+                                borderRadius: 2,
+                                mb: 1,
+                                backgroundColor: '#f9f9f9'
+                            }}
                             >
-                                <MenuItem value="">All Specializations</MenuItem>
-                                {allSpecializations.map((spec, idx) => (
-                                    <MenuItem key={idx} value={spec}>{spec}</MenuItem>
-                                ))}
-                            </TextField>
-
-                            {/* Therapist Table */}
-                            <Box flexGrow={1}>
-                                <TableContainer component={Paper}>
-                                    <Table>
-                                        <TableHead>
-                                            <TableRow>
-                                                <TableCell onClick={() => handleSort('first_name')} style={{ cursor: 'pointer' }}>
-                                                    First Name {sortBy === 'first_name' && (sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" /> : <ArrowDownwardIcon fontSize="small" />)}
-                                                </TableCell>
-                                                <TableCell onClick={() => handleSort('last_name')} style={{ cursor: 'pointer' }}>
-                                                    Last Name {sortBy === 'last_name' && (sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" /> : <ArrowDownwardIcon fontSize="small" />)}
-                                                </TableCell>
-                                                <TableCell onClick={() => handleSort('specialization')} style={{ cursor: 'pointer' }}>
-                                                    Specialization {sortBy === 'specialization' && (sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" /> : <ArrowDownwardIcon fontSize="small" />)}
-                                                </TableCell>
-                                                <TableCell>Select</TableCell>
-                                            </TableRow>
-                                        </TableHead>
-
-                                        <TableBody>
-                                            {sortedTherapists.map((therapist) => (
-                                                <TableRow
-                                                    key={therapist.therapist_id}
-                                                    hover
-                                                    onClick={() => setSelectedTherapistId(therapist.therapist_id)}
-                                                    sx={{cursor: 'pointer'}}
-                                                >
-                                                    <TableCell>{therapist.first_name}</TableCell>
-                                                    <TableCell>{therapist.last_name}</TableCell>
-                                                    <TableCell>{therapist.specialization}</TableCell>
-                                                    <TableCell>
-                                                        <Button
-                                                            onClick={() => setSelectedTherapistId(therapist.therapist_id)}
-                                                            variant={selectedTherapistId === therapist.therapist_id ? "contained" : "outlined"}
-                                                        >
-                                                            Select
-                                                        </Button>
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </TableContainer>
+                            <Typography>
+                                <strong>Name:</strong> {student.first_name} {student.last_name}
+                            </Typography>
+                            <Typography>
+                                <strong>Email:</strong> {student.email}
+                            </Typography>
                             </Box>
-                            <Box mt={2}>
-                                <Button variant="contained" color="primary" onClick={handleBookSession}>
-                                    Book Session
-                                </Button>
-                            </Box>
-                        </AccordionDetails>
-                    </Accordion>
-    
-                    {/* Manage Appointments */}
-                    <Accordion sx={{ mb: 5 }}>
-                        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                            <Typography variant="h6">Manage Appointments</Typography>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                            <List>
-                                <ListItem
-                                    secondaryAction={
-                                        
-                                        <Box display="flex" gap={1}>
-                                            <Button variant="contained" color="error">Cancel</Button>
-                                        </Box>
-                                    }
-                                >
-                                    <ListItemText primary="Session with Dr. Smith" secondary="Date: 2025-10-15, 10:00 AM" />
-                                </ListItem>
-                            </List>
-                        </AccordionDetails>
-                    </Accordion>
+                        ))}
+                        </Box>
+                    ) : (
+                        <Typography variant="body2" mt={2}>No linked children yet.</Typography>
+                    )}
+                    </AccordionDetails>
+                </Accordion>
 
-                    {/* View History */}
-                    <Accordion sx={{ mb: 5 }}>
-                        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                            <Typography variant="h6">View Session History</Typography>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                            <List>
-                                <ListItem
-                                    onClick={() => navigate('/student-dashboard')}
-                                    sx={{
-                                        border: '1px solid #ccc',
-                                        borderRadius: 2,
-                                        mb: 1,
-                                        transition: 'background-color 0.3s',
-                                        '&:hover': { backgroundColor: 'action.hover',
-                                        },
-                                        '&:focus': {
-                                            backgroundColor: 'primary.main',
-                                            color: 'white',
-                                        }
-                                    }}
-                                    secondaryAction={
-                                        <Button variant="outlined" color="primary">View Notes</Button>
-                                    }
-                                >
-                                    <ListItemText primary="Dr. Maleek" secondary="Last Session Date: 2024-10-15 02:00 PM" />
-                                </ListItem>
-                            </List>
-                        </AccordionDetails>
-                    </Accordion>
+                {/* Manage Appointments */}
+                <Accordion sx={{ mb: 5 }}>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    <Typography variant="h6">Manage Appointments</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <List>
+                            {/* Sample appointment */}
+                            <ListItem
+                            secondaryAction={
+                                <Box display="flex" gap={1}>
+                                    <Button variant="contained" color="error">Cancel</Button>
+                                </Box>
+                            }
+                            >
+                                <ListItemText primary="Session with Dr. Smith" secondary="Date: 2025-10-15, 10:00 AM" />
+                            </ListItem>
+                        </List>
+                    </AccordionDetails>
+                </Accordion>
                 </Box>
                 <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
                     <DialogTitle>Link to Child Account</DialogTitle>
@@ -537,6 +514,85 @@ const ParentDashboard = () => {
                             Link
                         </Button>
                     </DialogActions>
+                </Dialog>
+                <Dialog open={openTimesModal} onClose={() => setOpenTimesModal(false)} fullWidth maxWidth="sm">
+                    <DialogTitle>Select a Time</DialogTitle>
+                    <DialogContent>
+                        {/* Time Selection */}
+                        <Grid container spacing={2}>
+                        {availableTimes.map((time) => (
+                            <Grid size={{ xs: 4, sm: 3 }} key={time}>
+                            <Button
+                                fullWidth
+                                variant={selectedTime === time ? "contained" : "outlined"}
+                                color="primary"
+                                onClick={() => setSelectedTime(time)}
+                            >
+                                {dayjs(time, 'HH:mm').format('h:mm A')}
+                            </Button>
+                            </Grid>
+                        ))}
+                        </Grid>
+                        {!selectedTime && <Box mt={2}>
+                            <Button
+                                variant="outlined"
+                                color="error"
+                                onClick={() => {
+                                    setOpenTimesModal(false)
+                                }}
+                            >
+                                Cancel
+                            </Button>
+                        </Box>}
+                        {/* Confirmation Summary */}
+                        {selectedTime && (
+                        <Box mt={4} textAlign="center">
+                            <Typography variant="subtitle1" gutterBottom>
+                                Confirm this appointment?
+                            </Typography>
+                            <Typography variant="body1">
+                                Therapist: <strong>{selectedTherapist.first_name} {selectedTherapist.last_name}</strong>
+                            </Typography>
+                            <Typography variant="body1">
+                                Student: <strong>{selectedStudent.first_name} {selectedStudent.last_name}</strong>
+                            </Typography>
+                            <Typography variant="body1">
+                                Date: <strong>{dayjs(selectedDate).format("MMMM D, YYYY")}</strong>
+                            </Typography>
+                            <Typography variant="body1">
+                                Time: <strong>{dayjs(selectedTime, 'HH:mm').format('h:mm A')}</strong>
+                            </Typography>
+                            {/* Use Stack for spacing and centering */}
+                            <Grid container justifyContent="center" spacing={2} mt={3}>
+                                <Grid>
+                                    <Button
+                                        variant="contained"
+                                        color="success"
+                                        onClick={() => {
+                                            handleBookSession();
+                                            setOpenTimesModal(false);
+                                            setSelectedTime(null)
+                                            setSelectedDate(null)
+                                        }}
+                                    >
+                                        Confirm
+                                    </Button>
+                                </Grid>
+                                <Grid>
+                                    <Button
+                                        variant="contained"
+                                        color="error"
+                                        onClick={() => {
+                                            setSelectedTime(null);
+                                        }}
+                                    >
+                                        Cancel
+                                    </Button>
+                                </Grid>
+                                </Grid>
+                        </Box>
+                        )}
+                    </DialogContent>
                 </Dialog>
             </Container>
         </div>
