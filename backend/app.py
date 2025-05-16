@@ -13,6 +13,7 @@ app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = 'cmsc447team32025@gmail.com'
 app.config['MAIL_PASSWORD'] = 'qpgtdwnjiugqozos'
+app.config['MAIL_DEFAULT_SENDER'] =  'cmsc447team32025@gmail.com'
 mail = Mail(app)
 # Sanitize only string fields
 def safe_escape(value):
