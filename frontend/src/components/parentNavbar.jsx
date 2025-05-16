@@ -20,18 +20,14 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { logoutUser } from '../Slices/authSlice';
 
 
-const ParentNavbar = () => {
+const ParentNavbar = ({ studentRelationships }) => {
     const [drawerOpen, setDrawerOpen] = useState(false);
     const navigate = useNavigate()
     const dispatch = useDispatch();
-    
     const handleLogout = () => {
         dispatch(logoutUser());
         navigate('/login')
     };
-
-    // Dummy children list
-    const children = ["John Doe", "Jane Smith", "Alice Johnson"];
 
     return (
         <>
@@ -76,17 +72,13 @@ const ParentNavbar = () => {
                     <Typography variant="h6" style={{ padding: "16px" }}>
                         Children List
                     </Typography>
-                
                     <Divider />
-                    <List>
-                        {children.map((child, index) => (
-                            <ListItem button key={index}>
-                                <ListItemText primary={child} />
-                            </ListItem>
-                        ))}
-                    </List>
+                    {studentRelationships.map((child, index) => (
+                        <ListItem button key={index}>
+                            <ListItemText primary={`${child.first_name} ${child.last_name}`} />
+                        </ListItem>
+                    ))}
                 </div>
-            
             </Drawer>
         </>
     )
