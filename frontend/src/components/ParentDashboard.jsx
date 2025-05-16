@@ -31,7 +31,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import { fetchAllTherapists } from "../Slices/GetSlice"
-import { bookAppointment, getAppointmentsByTherapistId, linkChild } from '../Slices/authSlice'
+import { bookAppointment, getAppointmentsByTherapistId, linkChild, fetchLinkedStudents } from '../Slices/authSlice'
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import dayjs from "dayjs";
@@ -64,8 +64,10 @@ const ParentDashboard = () => {
     const [childPassword, setChildPassword] = useState('');
     const children = ["John Doe", "Jane Smith", "Alice Johnson"];
     const user = useSelector((state) => state.auth.user);
+    const studentRelationships = useSelector((state) => state.auth.studentRelationship);
+    const linkStatus = useSelector((state) => state.auth.linkStatus);
 
-    useEffect(() => { 
+    useEffect(() => {
         fetchAllTherapists(setTherapists);
         if (!user) {
             navigate('/login');
@@ -86,6 +88,12 @@ const ParentDashboard = () => {
                 });
         }
     }, [dispatch, selectedTherapistId]);
+
+    useEffect(() => {
+        if (user) {
+            dispatch(fetchLinkedStudents({ user_id: user.user_id, role: user.role}))
+        }
+    }, [dispatch, user, linkStatus])
 
     if (!user) {
         return <div>Loading...</div>;
@@ -271,7 +279,7 @@ const ParentDashboard = () => {
 
     const handleLinkChild = async () => {
         try {
-            const resultAction = dispatch(
+            const resultAction = await dispatch(
             linkChild({ user_id: user.user_id, email: childEmail, password: childPassword }));
 
             if (linkChild.fulfilled.match(resultAction)) {
@@ -306,22 +314,52 @@ const ParentDashboard = () => {
                             <Typography variant="h6">Manage Child</Typography>
                         </AccordionSummary>
                         <AccordionDetails>
-                            <Box display="flex" flexDirection={{ xs: 'column', sm: 'row' }} gap={2}>
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={() => navigate('/guardian-register-child')}
+                        <Box display="flex" flexDirection={{ xs: 'column', sm: 'row' }} gap={2} mb={2}>
+                            <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => navigate('/guardian-register-child')}
+                            >
+                            Create Your Child’s Account
+                            </Button>
+                            <Button
+                            variant="outlined"
+                            color="primary"
+                            onClick={() => setDialogOpen(true)}
+                            >
+                            Link to Current Child Account
+                            </Button>
+                        </Box>
+
+                        {/* Display linked students */}
+                        {studentRelationships.length > 0 ? (
+                            <Box mt={2}>
+                            <Typography variant="subtitle1" gutterBottom>
+                                Linked Children:
+                            </Typography>
+                            {studentRelationships.map((student, index) => (
+                                <Box
+                                key={index}
+                                sx={{
+                                    p: 2,
+                                    border: '1px solid #ccc',
+                                    borderRadius: 2,
+                                    mb: 1,
+                                    backgroundColor: '#f9f9f9'
+                                }}
                                 >
-                                    Create Your Child’s Account
-                                </Button>
-                                <Button
-                                    variant="outlined"
-                                    color="primary"
-                                    onClick={() => setDialogOpen(true)}
-                                >
-                                    Link to Current Child Account
-                                </Button>
+                                <Typography>
+                                    <strong>Name:</strong> {student.first_name} {student.last_name}
+                                </Typography>
+                                <Typography>
+                                    <strong>Email:</strong> {student.email}
+                                </Typography>
+                                </Box>
+                            ))}
                             </Box>
+                        ) : (
+                            <Typography variant="body2" mt={2}>No linked children yet.</Typography>
+                        )}
                         </AccordionDetails>
                     </Accordion>
                     {/* Book a Session & Find Therapist */}

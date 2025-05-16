@@ -74,6 +74,32 @@ export const linkChild = createAsyncThunk(
   }
 );
 
+// Get all guardians linked to a student
+export const fetchLinkedGuardians = createAsyncThunk(
+  'auth/fetchLinkedGuardians',
+  async ({ user_id, role }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(`${BASE_URL}/get-linked-guardians`, { user_id, role });
+      return response.data.guardians;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.error || 'Failed to fetch linked guardians');
+    }
+  }
+);
+
+// Get all students linked to a guardian
+export const fetchLinkedStudents = createAsyncThunk(
+  'auth/fetchLinkedStudents',
+  async ({ user_id, role }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(`${BASE_URL}/get-linked-students`, { user_id, role });
+      return response.data.students;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.error || 'Failed to fetch linked students');
+    }
+  }
+);
+
 // Async thunk for logging in
 export const loginUser = createAsyncThunk(
   'auth/loginUser',
@@ -204,6 +230,9 @@ const initialState = {
   linkStatus: 'idle',
   linkError: null,
   linkedStudentId: null,
+  guardianRelationship: [],
+  studentRelationship: [],
+  relationshipStatus: 'idle',
 };
 
 // Auth slice
@@ -228,6 +257,9 @@ const authSlice = createSlice({
       state.linkStatus = 'idle';
       state.linkError = null;
       state.linkedStudentId = null;
+      state.guardianRelationship = [];
+      state.studentRelationship = [];
+      state.relationshipStatus = 'idle'
     },
   },
   extraReducers: (builder) => {
@@ -411,6 +443,34 @@ const authSlice = createSlice({
       .addCase(fetchSessionDuration.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      .addCase(fetchLinkedGuardians.pending, (state) => {
+        state.relationshipStatus = 'loading';
+        state.error = null;
+      })
+      .addCase(fetchLinkedGuardians.fulfilled, (state, action) => {
+        state.guardianRelationship = action.payload;
+        state.error = false;
+        state.relationshipStatus = 'succeeded';
+      })
+      .addCase(fetchLinkedGuardians.rejected, (state, action) => {
+        state.relationshipLoading = false;
+        state.error = action.payload;
+        state.relationshipStatus = 'failed';
+      })
+      .addCase(fetchLinkedStudents.pending, (state) => {
+        state.relationshipStatus = 'loading';
+        state.error = null;
+      })
+      .addCase(fetchLinkedStudents.fulfilled, (state, action) => {
+        state.studentRelationship = action.payload;
+        state.relationshipLoading = false;
+        state.relationshipStatus = 'succeeded';
+      })
+      .addCase(fetchLinkedStudents.rejected, (state, action) => {
+        state.relationshipLoading = false;
+        state.relationshipError = action.payload;
+        state.relationshipStatus = 'failed';
       })
       .addCase(getAppointmentsForStudent.pending, (state) => {
         state.loading = true;
