@@ -403,8 +403,9 @@ def get_therapists():
             t.session_duration
         FROM Therapists t
         JOIN Users u ON t.user_id = u.user_id
+        WHERE t.isVerified = TRUE
     """
-    # Add WHERE t.isVerified = TRUE under join users when therapist verification
+
     cursor.execute(query)
     therapists = cursor.fetchall()
 
