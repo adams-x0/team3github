@@ -1,15 +1,25 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import '../css/register.css'
 import { useNavigate } from 'react-router-dom';
 import zxcvbn from "zxcvbn"; // Import zxcvbn for password strength checking
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from "react-redux";
 import { registerUser } from '../Slices/authSlice';
 
 const GuardianRegisterChild = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const user = useSelector((state) => state.auth.user);
+
+    useEffect(() => {
+        if (!user) {
+            navigate('/login');
+        } else if (user.role !== 'guardian') {
+            navigate('/login');
+        }
+    }, [user, navigate]);
 
     const [formData, setFormData] = useState({
+        guardian_id:user['guardian_id'],
         firstName: "",
         lastName: "",
         email: "",

@@ -198,6 +198,7 @@ def add_user():
         return jsonify({"error": "Missing required fields"}), 400
 
     # Extract fields
+    guardian_id = int(data.get('guardian_id')) if data.get('guardian_id') else None
     email = data['email']
     password = data['password']
     first_name = data['firstName']
@@ -230,7 +231,7 @@ def add_user():
 
     try:
         conn = get_db_connection()
-        cursor = conn.cursor()
+        cursor = conn.cursor(dictionary=True)
 
         # Insert the user
         cursor.execute("""
@@ -242,6 +243,15 @@ def add_user():
         # Insert into role-specific table
         if role == 'student':
             cursor.execute("INSERT INTO Students (user_id) VALUES (%s)", (user_id,))
+
+            if guardian_id:
+                # Get the student_id
+                cursor.execute("SELECT student_id FROM Students WHERE user_id = %s", (user_id,))
+                student = cursor.fetchone()
+                if student:
+                    student_id = student['student_id']
+                    cursor.execute("INSERT INTO ParentStudent (guardian_id, student_id) VALUES (%s, %s)", (guardian_id, student_id))
+
         elif role == 'guardian':
             cursor.execute("INSERT INTO Guardians (user_id) VALUES (%s)", (user_id,))
         elif role == 'therapist':
