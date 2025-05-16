@@ -131,8 +131,9 @@ const GuardianRegisterChild = () => {
         try {
             const result = await dispatch(registerUser(fullFormData));
             if (registerUser.fulfilled.match(result)) {
+                alert('Registration successful!');
                 switch (formData.role) {
-                    case 'student':  
+                    case 'student':
                         navigate('/parent-dashboard');
                         break;
                     default:
