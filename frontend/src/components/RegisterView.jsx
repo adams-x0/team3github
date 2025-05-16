@@ -104,14 +104,50 @@ const Register = () => {
     }
 
     const handleNext = async () => {
-        if (formData.password !== formData.confirmPassword) return;
-    
-        const { dobYear, dobMonth, dobDay } = formData.dateFields;
+        const { firstName, lastName, email, phone, role, password, confirmPassword, address, dateFields} = formData;
+        const { dobYear, dobMonth, dobDay } = dateFields;
 
-        let dob = null;
-        if (dobYear && dobMonth && dobDay) { 
-            dob = `${dobYear}-${dobMonth.padStart(2, '0')}-${dobDay.padStart(2, '0')}`;
+
+        // Basic field validation
+        if (!firstName || !lastName || !email || !phone || !role || !password || !confirmPassword || !address) {
+            alert("Please fill in all required fields.");
+            return;
         }
+
+        // Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            alert("Please enter a valid email address.");
+            return;
+        }
+
+        // Phone number validation (only digits, 10 characters)
+        const phoneRegex = /^\d{10}$/;
+        if (!phoneRegex.test(phone)) {
+            alert("Please enter a valid 10-digit phone number.");
+            return;
+        }
+
+        // DOB validation
+        const year = parseInt(dobYear);
+        const month = parseInt(dobMonth);
+        const day = parseInt(dobDay);
+        
+        if (!year || !month || !day || month < 1 || month > 12 || day < 1 || day > 31 || year < 1900 || year > 2300) {
+            alert("Please enter a valid date of birth.");
+            return;
+        }
+
+
+        // Password match
+        if (formData.password !== formData.confirmPassword) {
+            alert("Passwords do not match.");
+            return;
+        }
+
+
+        const dob = `${dobYear}-${dobMonth.padStart(2, '0')}-${dobDay.padStart(2, '0')}`;
+        
         
         const fullFormData = {
             ...formData,
