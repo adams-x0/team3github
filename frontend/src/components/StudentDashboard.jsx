@@ -36,7 +36,8 @@ import {
     bookAppointment,
     getAppointmentsByTherapistId,
     getAppointmentsForStudent,
-    cancelAppointment
+    cancelAppointment,
+    fetchLinkedGuardians
 } from '../Slices/authSlice'
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -63,6 +64,7 @@ const StudentDashboard = () => {
     const [openTimesModal, setOpenTimesModal] = useState(false);
     const [therapistAppointments, setTherapistAppointments] = useState([]);
     const studentAppointments = useSelector((state) => state.auth.studentAppointments);
+    const guardianRelationships = useSelector((state) => state.auth.guardianRelationship);
 
     useEffect(() => {
         fetchAllTherapists(setTherapists)
@@ -88,6 +90,12 @@ const StudentDashboard = () => {
                 });
         }
     }, [dispatch, selectedTherapistId]);
+
+    useEffect(() => {
+        if (user) {
+            dispatch(fetchLinkedGuardians({ user_id: user.user_id, role: user.role}))
+        }
+    }, [dispatch, user])
 
     if (!user) {
         return <div>Loading...</div>;
@@ -246,7 +254,6 @@ const StudentDashboard = () => {
             }
         }
     };
-    
 
     const handleBookSession = async () => {
     if (!selectedTherapistId || !selectedTime || !selectedDate) {
@@ -416,34 +423,39 @@ const StudentDashboard = () => {
                     </AccordionDetails>
                 </Accordion>
 
-                {/* View History */}
+                {/* Linked Guardians */}
                 <Accordion sx={{ mb: 5 }}>
                     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                        <Typography variant="h6">View Session History</Typography>
+                        <Typography variant="h6">Linked Guardians</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
+                        {guardianRelationships?.length > 0 ? (
                         <List>
+                            {guardianRelationships.map((guardian, index) => (
                             <ListItem
-                                onClick={() => navigate('/student-dashboard')}
+                                key={index}
                                 sx={{
-                                    border: '1px solid #ccc',
-                                    borderRadius: 2,
-                                    mb: 1,
-                                    transition: 'background-color 0.3s',
-                                    '&:hover': { backgroundColor: 'action.hover',
-                                    },
-                                    '&:focus': {
-                                        backgroundColor: 'primary.main',
-                                        color: 'white',
-                                    }
-                                }}
-                                secondaryAction={
-                                    <Button variant="outlined" color="primary">View Notes</Button>
+                                border: '1px solid #ccc',
+                                borderRadius: 2,
+                                mb: 1,
+                                transition: 'background-color 0.3s',
+                                '&:hover': { backgroundColor: 'action.hover' },
+                                '&:focus': {
+                                    backgroundColor: 'primary.main',
+                                    color: 'white',
                                 }
+                                }}
                             >
-                                <ListItemText primary="Dr. Maleek" secondary="Last Session Date: 2024-10-15 02:00 PM" />
+                                <ListItemText
+                                primary={`${guardian.first_name} ${guardian.last_name}`}
+                                secondary={`Email: ${guardian.email}`}
+                                />
                             </ListItem>
+                            ))}
                         </List>
+                        ) : (
+                        <Typography>No guardians linked to this student.</Typography>
+                        )}
                     </AccordionDetails>
                 </Accordion>
                 </Box>
@@ -477,7 +489,7 @@ const StudentDashboard = () => {
                             </Button>
                         </Box>}
                         {/* Confirmation Summary */}
-                        {selectedTime && selectedTherapist && (
+                        {selectedTime && (
                         <Box mt={4} textAlign="center">
                             <Typography variant="subtitle1" gutterBottom>
                             Confirm this appointment?
