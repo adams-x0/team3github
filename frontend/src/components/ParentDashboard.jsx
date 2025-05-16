@@ -514,7 +514,7 @@ const ParentDashboard = () => {
                                 <ListItem key={appt.appointment_id} sx={{ mb: 1 }} divider>
                                     <ListItemText
                                         primary={`Session with ${appt.therapist_name}`}
-                                        secondary={`Date: ${appt.date}, Time: ${appt.time}`}
+                                        secondary={`Date: ${appt.date}, Time: ${appt.time}, Status: ${appt.status}`}
                                     />
                                     <Button
                                         variant="contained"
