@@ -308,18 +308,19 @@ const authSlice = createSlice({
       })
       // registerUser success
       .addCase(registerUser.fulfilled, (state, action) => {
-        // state.user = action.payload;
+        if(state.user?.role !== 'guardian') {
+          state.user = action.payload;
+          localStorage.setItem('user', JSON.stringify(action.payload));
+        }
         state.defaultAvailability = null;
         state.loading = false;
         state.error = null;
-        alert('Registration successful!'); // 
-        // localStorage.setItem('user', JSON.stringify(action.payload));
       })
       // registerUser error
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-        alert('Unsuccessful Registration !'); // 
+        alert('Unsuccessful Registration !');
       })
       //Update default availability Success
       .addCase(updateDefaultAvailability.fulfilled, (state, action) => {
