@@ -300,7 +300,7 @@ const ParentDashboard = () => {
 
         return (
             <div>
-            <ParentNavbar />
+            <ParentNavbar studentRelationships={studentRelationships} />
             <Container>
                 <Box pb={8}>
                     <Typography variant="h4" align="center" gutterBottom mt={4}>
