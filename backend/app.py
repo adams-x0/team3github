@@ -857,6 +857,86 @@ def reject_therapist():
     conn.close()
     return jsonify({'message': 'Therapist rejected and removed'})
 
+@app.route('/get-linked-guardians', methods=['POST'])
+def get_linked_guardians():
+    data = request.get_json()
+    user_id = safe_escape(data.get('user_id'))
+    role = safe_escape(data.get('role', '').lower())
+
+    if role != 'student':
+        return jsonify({"error": "This route is only for student role"}), 400
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        # Get student_id from Students table
+        cursor.execute("SELECT student_id FROM Students WHERE user_id = %s", (user_id,))
+        student = cursor.fetchone()
+
+        if not student:
+            return jsonify({"error": "Student not found"}), 404
+
+        student_id = student['student_id']
+
+        # Get all linked guardians
+        cursor.execute("""
+            SELECT g.guardian_id, u.first_name, u.last_name, u.email, u.phone
+            FROM ParentStudent ps
+            JOIN Guardians g ON ps.guardian_id = g.guardian_id
+            JOIN Users u ON g.user_id = u.user_id
+            WHERE ps.student_id = %s
+        """, (student_id,))
+
+        guardians = cursor.fetchall()
+        cursor.close()
+        conn.close()
+
+        return jsonify({"guardians": guardians}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/get-linked-students', methods=['POST'])
+def get_linked_students():
+    data = request.get_json()
+    user_id = safe_escape(data.get('user_id'))
+    role = safe_escape(data.get('role', '').lower())
+
+    if role != 'guardian':
+        return jsonify({"error": "This route is only for guardian role"}), 400
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        # Get guardian_id from Guardians table
+        cursor.execute("SELECT guardian_id FROM Guardians WHERE user_id = %s", (user_id,))
+        guardian = cursor.fetchone()
+
+        if not guardian:
+            return jsonify({"error": "Guardian not found"}), 404
+
+        guardian_id = guardian['guardian_id']
+
+        # Get all linked students
+        cursor.execute("""
+            SELECT s.student_id, u.first_name, u.last_name, u.email, u.phone
+            FROM ParentStudent ps
+            JOIN Students s ON ps.student_id = s.student_id
+            JOIN Users u ON s.user_id = u.user_id
+            WHERE ps.guardian_id = %s
+        """, (guardian_id,))
+
+        students = cursor.fetchall()
+        cursor.close()
+        conn.close()
+
+        return jsonify({"students": students}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 # Entry point
 if __name__ == '__main__':
     create_tables()
