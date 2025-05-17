@@ -259,26 +259,28 @@ const StudentDashboard = () => {
     };
 
     const handleBookSession = async () => {
-    if (!selectedTherapistId || !selectedTime || !selectedDate) {
-        alert("Please select a therapist, date, and time.");
-        return;
-    }
+        if (!selectedTherapistId || !selectedTime || !selectedDate) {
+            alert("Please select a therapist, date, and time.");
+            return;
+        }
 
-    const appointmentData = {
-        student_id: user.student_id,
-        therapist_id: selectedTherapistId,
-        date: selectedDate.format("YYYY-MM-DD"),
-        time: selectedTime,
-        location: "Online",
-    };
+        const appointmentData = {
+            student_id: user.student_id,
+            therapist_id: selectedTherapistId,
+            date: selectedDate.format("YYYY-MM-DD"),
+            time: selectedTime,
+            location: "Online",
+        };
 
-    const result = await dispatch(bookAppointment(appointmentData));
+        const result = await dispatch(bookAppointment(appointmentData));
 
-    if (bookAppointment.fulfilled.match(result)) {
-        alert("Appointment booked successfully and is now pending.");
-    } else {
-        alert(result.payload || "Failed to book appointment. Please try again.");
-    }
+        if (bookAppointment.fulfilled.match(result)) {
+            alert("Appointment booked successfully and is now pending.");
+            // Fetch updated appointments for the student
+            dispatch(getAppointmentsForStudent(user.user_id));
+        } else {
+            alert(result.payload || "Failed to book appointment. Please try again.");
+        }
     };
 
 
