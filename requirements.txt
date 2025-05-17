@@ -5,3 +5,7 @@ flask-cors
 bcrypt
 mysql-connector-python
 flask_mail
+pytest
+pytest-flask
+pytest-mock
+
