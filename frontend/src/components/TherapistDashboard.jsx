@@ -226,46 +226,45 @@ const TherapistDashboard = () => {
                             <Typography variant="h6">Manage Appointments</Typography>
                         </AccordionSummary>
                         <AccordionDetails>
-                            {/* Filters */}
-                            <Typography variant="subtitle1" gutterBottom>
-                                Filter by date
-                            </Typography>
-                                {/* List of Non-Pending Appointments */}
-                                <List>
-                                    {nonPendingAppointments?.map((appointment, index) => (
+                            {/* List of Non-Pending Appointments */}
+                            <List>
+                                {nonPendingAppointments.length === 0 ? (
+                                    <Typography>No accepted appointments found.</Typography>
+                                ) : ( nonPendingAppointments?.map((appointment, index) => (
                                         <ListItem
-                                        key={index}
-                                        onClick={() => navigate('/therapist-dashboard')}
-                                        sx={{
-                                            border: "1px solid #ccc",
-                                            borderRadius: 2,
-                                            mb: 1,
-                                            transition: 'background-color 0.3s',
-                                            '&:hover': { backgroundColor: 'action.hover' },
-                                            '&:focus': {
-                                            backgroundColor: 'primary.main',
-                                            color: 'white',
+                                            key={index}
+                                            onClick={() => navigate('/therapist-dashboard')}
+                                            sx={{
+                                                border: "1px solid #ccc",
+                                                borderRadius: 2,
+                                                mb: 1,
+                                                transition: 'background-color 0.3s',
+                                                '&:hover': { backgroundColor: 'action.hover' },
+                                                '&:focus': {
+                                                backgroundColor: 'primary.main',
+                                                color: 'white',
+                                                }
+                                            }}
+                                            secondaryAction={
+                                                <Box display="flex" gap={1}>
+                                                <Button
+                                                    variant="contained"
+                                                    color="error"
+                                                    onClick={() => dispatch(cancelAppointment(appointment.appointment_id))}
+                                                >
+                                                    Cancel
+                                                </Button>
+                                                </Box>
                                             }
-                                        }}
-                                        secondaryAction={
-                                            <Box display="flex" gap={1}>
-                                            <Button
-                                                variant="contained"
-                                                color="error"
-                                                onClick={() => dispatch(cancelAppointment(appointment.appointment_id))}
-                                            >
-                                                Cancel
-                                            </Button>
-                                            </Box>
-                                        }
                                         >
                                         <ListItemText
                                             primary={appointment.student_name}
                                             secondary={`${appointment.date} - ${appointment.time}`}
                                         />
                                         </ListItem>
-                                    ))}
-                                </List>
+                                    )
+                                ))}
+                            </List>
                         </AccordionDetails>
                     </Accordion>
 
@@ -276,33 +275,36 @@ const TherapistDashboard = () => {
                         </AccordionSummary>
                         <AccordionDetails>
                             <List>
-                                {pendingAppointments?.map((appointment, index) => (
-                                <ListItem
-                                    key={index}
-                                    onClick={() => navigate('/therapist-dashboard')}
-                                    sx={{
-                                    border: '1px dashed #aaa',
-                                    borderRadius: 2,
-                                    mb: 1,
-                                    transition: 'background-color 0.3s',
-                                    '&:hover': { backgroundColor: 'action.hover' },
-                                    '&:focus': {
-                                        backgroundColor: 'primary.main',
-                                        color: 'white',
-                                    }
-                                    }}
-                                    secondaryAction={
-                                    <Box display="flex" gap={1}>
-                                        <Button onClick={() => dispatch(acceptAppointment(appointment.appointment_id))} variant="outlined" color="primary">Accept</Button>
-                                        <Button onClick={() => dispatch(cancelAppointment(appointment.appointment_id))} variant="contained" color="error">Reject</Button>
-                                    </Box>
-                                    }
-                                >
-                                    <ListItemText
-                                    primary={appointment.student_name}
-                                    secondary={`Requested: ${appointment.date} - ${appointment.time}`}
-                                    />
-                                </ListItem>
+                                {pendingAppointments.length === 0 ? (
+                                    <Typography>No pending appointments found.</Typography>
+                                ) : ( pendingAppointments?.map((appointment, index) => (
+                                        <ListItem
+                                            key={index}
+                                            onClick={() => navigate('/therapist-dashboard')}
+                                            sx={{
+                                            border: '1px dashed #aaa',
+                                            borderRadius: 2,
+                                            mb: 1,
+                                            transition: 'background-color 0.3s',
+                                            '&:hover': { backgroundColor: 'action.hover' },
+                                            '&:focus': {
+                                                backgroundColor: 'primary.main',
+                                                color: 'white',
+                                            }
+                                            }}
+                                            secondaryAction={
+                                            <Box display="flex" gap={1}>
+                                                <Button onClick={() => dispatch(acceptAppointment(appointment.appointment_id))} variant="outlined" color="primary">Accept</Button>
+                                                <Button onClick={() => dispatch(cancelAppointment(appointment.appointment_id))} variant="contained" color="error">Reject</Button>
+                                            </Box>
+                                            }
+                                        >
+                                        <ListItemText
+                                            primary={appointment.student_name}
+                                            secondary={`Requested: ${appointment.date} - ${appointment.time}`}
+                                        />
+                                        </ListItem>
+                                    )
                                 ))}
                             </List>
                         </AccordionDetails>
