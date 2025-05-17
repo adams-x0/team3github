@@ -65,6 +65,7 @@ const StudentDashboard = () => {
     const [therapistAppointments, setTherapistAppointments] = useState([]);
     const studentAppointments = useSelector((state) => state.auth.studentAppointments);
     const guardianRelationships = useSelector((state) => state.auth.guardianRelationship);
+    const bookingStatus = useSelector((state) => state.auth.bookingStatus)
 
     useEffect(() => {
         fetchAllTherapists(setTherapists)
@@ -76,7 +77,7 @@ const StudentDashboard = () => {
         } else if (user.role !== 'student') {
             navigate('/login');
         }
-    }, [user, navigate, setTherapists, dispatch]);
+    }, [user, navigate, setTherapists, dispatch, bookingStatus]);
 
     useEffect(() => {
         if (selectedTherapistId) {
