@@ -381,11 +381,6 @@ const StudentDashboard = () => {
                                     </Table>
                                 </TableContainer>
                             </Box>
-                            <Box mt={2}>
-                                <Button variant="contained" color="primary" onClick={handleBookSession}>
-                                    Book Session
-                                </Button>
-                            </Box>
                         </AccordionDetails>
                 </Accordion>
 
