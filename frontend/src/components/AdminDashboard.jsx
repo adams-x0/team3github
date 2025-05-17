@@ -46,14 +46,14 @@ const AdminDashboard = () => {
     }, [user, navigate]);
 
     useEffect(() => {
-        fetch('http://localhost:5000/getPendingTherapists')
+        fetch('http://127.0.0.1:5000/getPendingTherapists')
             .then(res => res.json())
             .then(data => setPendingTherapists(data))
             .catch(err => console.error('Failed to fetch therapists', err));
     }, []);
 
     const approveTherapist = (therapist_id) => {
-        fetch('http://localhost:5000/verifyTherapist', {
+        fetch('http://127.0.0.1:5000/verifyTherapist', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ therapist_id }),
@@ -66,7 +66,7 @@ const AdminDashboard = () => {
     };
 
     const rejectTherapist = (therapist_id) => {
-        fetch('http://localhost:5000/rejectTherapist', {
+        fetch('http://127.0.0.1:5000/rejectTherapist', {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ therapist_id }),
