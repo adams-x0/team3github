@@ -85,7 +85,7 @@ const StudentDashboard = () => {
                     if (getAppointmentsByTherapistId.fulfilled.match(result)) {
                         setTherapistAppointments(result.payload);
                     } else {
-                        console.error("Failed to fetch appointments", result.payload);
+                        console.error("Failed to fetch therapist appointments", result.payload);
                     }
                 });
         }
@@ -278,6 +278,14 @@ const StudentDashboard = () => {
             alert("Appointment booked successfully and is now pending.");
             // Fetch updated appointments for the student
             dispatch(getAppointmentsForStudent(user.user_id));
+            dispatch(getAppointmentsByTherapistId(selectedTherapistId))
+                .then((result) => {
+                    if (getAppointmentsByTherapistId.fulfilled.match(result)) {
+                        setTherapistAppointments(result.payload);
+                    } else {
+                        console.error("Failed to fetch therapist appointments", result.payload);
+                    }
+                });
         } else {
             alert(result.payload || "Failed to book appointment. Please try again.");
         }
