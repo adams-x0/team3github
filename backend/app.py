@@ -811,11 +811,21 @@ def accept_appointment(appointment_id):
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
 
-    # Check if the appointment exists
-    cursor.execute("SELECT * FROM Appointments WHERE appointment_id = %s", (appointment_id,))
-    appointment = cursor.fetchone()
+    # Check if the appointment exists and fetch related details
+    cursor.execute("""
+        SELECT a.date, a.time, a.location,
+            s.student_id, u1.email AS student_email, u1.first_name AS student_name,
+            t.therapist_id, u2.email AS therapist_email, u2.first_name AS therapist_name
+        FROM Appointments a
+        JOIN Students s ON a.student_id = s.student_id
+        JOIN Users u1 ON s.user_id = u1.user_id
+        JOIN Therapists t ON a.therapist_id = t.therapist_id
+        JOIN Users u2 ON t.user_id = u2.user_id
+        WHERE a.appointment_id = %s
+    """, (appointment_id,))
+    appt = cursor.fetchone()
 
-    if not appointment:
+    if not appt:
         cursor.close()
         connection.close()
         return jsonify({"error": "Appointment not found"}), 404
@@ -823,21 +833,22 @@ def accept_appointment(appointment_id):
     # Update the appointment status to 'accepted'
     cursor.execute("UPDATE Appointments SET status = %s WHERE appointment_id = %s", ("accepted", appointment_id))
     connection.commit()
-
     cursor.close()
     connection.close()
+
     subject = "Appointment Confirmed"
     body = (
-        f"Hi {appointment['student_name']} and {appointment['therapist_name']},\n\n"
-        f"Your appointment has been confirmed on {appointment['date']} at {appointment['time']} in {appointment['location']} .\n\n"
+        f"Hi {appt['student_name']} and {appt['therapist_name']},\n\n"
+        f"Your appointment has been confirmed on {appt['date']} at {appt['time']} in {appt['location']}.\n\n"
         "Please contact each other if needed."
     )
     try:
-        mail.send(Message(subject, recipients=[appointment['student_email']], body=body))
-        mail.send(Message(subject, recipients=[appointment['therapist_email']], body=body))
+        mail.send(Message(subject, recipients=[appt['student_email']], body=body))
+        mail.send(Message(subject, recipients=[appt['therapist_email']], body=body))
     except Exception as e:
         print("Confirmation email failed:", e)
-    return jsonify({"message": "Appointment status updated to accepted."}), 200
+
+    return jsonify({"message": "Appointment status updated to accepted and emails sent."}), 200
 
 @app.route('/rejectTherapist', methods=['DELETE'])
 def reject_therapist():

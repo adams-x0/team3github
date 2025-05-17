@@ -233,7 +233,6 @@ const TherapistDashboard = () => {
                                 ) : ( nonPendingAppointments?.map((appointment, index) => (
                                         <ListItem
                                             key={index}
-                                            onClick={() => navigate('/therapist-dashboard')}
                                             sx={{
                                                 border: "1px solid #ccc",
                                                 borderRadius: 2,
@@ -280,7 +279,6 @@ const TherapistDashboard = () => {
                                 ) : ( pendingAppointments?.map((appointment, index) => (
                                         <ListItem
                                             key={index}
-                                            onClick={() => navigate('/therapist-dashboard')}
                                             sx={{
                                             border: '1px dashed #aaa',
                                             borderRadius: 2,
