@@ -68,13 +68,12 @@ const StudentDashboard = () => {
 
     useEffect(() => {
         fetchAllTherapists(setTherapists)
-        if (user) {
-            dispatch(getAppointmentsForStudent(user.user_id))
-        }
         if (!user) {
             navigate('/login');
         } else if (user.role !== 'student') {
             navigate('/login');
+        } else {
+            dispatch(getAppointmentsForStudent(user.user_id))
         }
     }, [user, navigate, setTherapists, dispatch]);
 
