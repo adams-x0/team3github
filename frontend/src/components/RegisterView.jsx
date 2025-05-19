@@ -3,7 +3,7 @@ import '../css/register.css'
 import { useNavigate } from 'react-router-dom';
 import zxcvbn from "zxcvbn"; // Import zxcvbn for password strength checking
 import { useDispatch } from 'react-redux';
-import { registerUser } from '../Slices/authSlice';
+import { registerUser, clearUser } from '../Slices/authSlice';
 
 const Register = () => {
     const navigate = useNavigate();
@@ -167,7 +167,9 @@ const Register = () => {
                         navigate('/parent-dashboard');
                         break;
                     case 'therapist':
-                        navigate('/therapist-dashboard');
+                        await dispatch(clearUser());
+                        alert("Your account has been created and is pending admin approval.");
+                        navigate('/login');
                         break;
                     default:
                         navigate('/');
@@ -182,6 +184,7 @@ const Register = () => {
 
     // Function to handle going back to the previous page
     const handleCancel = () => {
+        dispatch(clearUser());
         navigate(-1); // Go back one step in the history
     };
 

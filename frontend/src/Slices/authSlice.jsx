@@ -282,6 +282,12 @@ const authSlice = createSlice({
       state.studentRelationship = [];
       state.relationshipStatus = 'idle'
     },
+    clearUser: (state) => {
+      localStorage.removeItem('user');
+      state.user = null;
+      state.status = 'idle';
+      state.error = null;
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -527,5 +533,6 @@ const authSlice = createSlice({
 
 // Export actions and reducer
 export const { logoutUser } = authSlice.actions;
+export const { clearUser } = authSlice.actions;
 export default authSlice.reducer;
 
