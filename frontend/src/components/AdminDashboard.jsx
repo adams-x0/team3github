@@ -17,7 +17,8 @@ import { useNavigate } from 'react-router-dom';
 import AdminNavbar from "./adminNavbar";
 import Badge from '@mui/material/Badge';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAllAppointmentsByAdmin } from "../Slices/authSlice";
 
 import {
     Table,
@@ -33,6 +34,8 @@ const openComplaints = 5
 
 
 const AdminDashboard = () => {
+    const dispatch = useDispatch();
+    const adminAppointments = useSelector((state) => state.auth.adminAppointments);
     const navigate = useNavigate();
     const user = useSelector((state) => state.auth.user);
     const [pendingTherapists, setPendingTherapists] = useState([]);
@@ -45,12 +48,18 @@ const AdminDashboard = () => {
         }
     }, [user, navigate]);
 
+    useEffect(() => { 
+        dispatch(fetchAllAppointmentsByAdmin());
+    }, [dispatch]);
+
     useEffect(() => {
         fetch('http://127.0.0.1:5000/getPendingTherapists')
             .then(res => res.json())
             .then(data => setPendingTherapists(data))
             .catch(err => console.error('Failed to fetch therapists', err));
     }, []);
+
+
 
     const approveTherapist = (therapist_id) => {
         fetch('http://127.0.0.1:5000/verifyTherapist', {
@@ -176,17 +185,28 @@ const AdminDashboard = () => {
                                             <TableCell><strong>Specialization</strong></TableCell>
                                             <TableCell><strong>Appointment Date</strong></TableCell>
                                             <TableCell><strong>Appointment Time</strong></TableCell>
+                                            <TableCell><strong>Status</strong></TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {/* Sample Appointment 1 */}
-                                        <TableRow>
-                                            <TableCell>John Doe</TableCell>
-                                            <TableCell>Dr. Smith</TableCell>
-                                            <TableCell>Clinical Psychology</TableCell>
-                                            <TableCell>August 15, 2025</TableCell>
-                                            <TableCell>10:00 PM</TableCell>
-                                        </TableRow>
+                                        {adminAppointments && adminAppointments.length > 0 ? (
+                                            adminAppointments.map((appt, index) => (
+                                                <TableRow key={index}>
+                                                    <TableCell>{appt.student}</TableCell>
+                                                    <TableCell>{appt.therapist}</TableCell>
+                                                    <TableCell>{appt.specialization}</TableCell>
+                                                    <TableCell>{appt.date}</TableCell>
+                                                    <TableCell>{appt.time}</TableCell>
+                                                    <TableCell>{appt.status}</TableCell>
+                                                </TableRow>
+                                            ))
+                                        ) : (
+                                            <TableRow>
+                                                <TableCell colSpan={7} align="center">
+                                                    No appointments found.
+                                                </TableCell>
+                                            </TableRow>
+                                        )}
                                     </TableBody>
                                 </Table>
                             </TableContainer>
@@ -202,42 +222,6 @@ const AdminDashboard = () => {
                                 </Button>
                             </Box>
 
-                        </AccordionDetails>
-                    </Accordion>
-                    {/* Find Student / Therapist */}
-                    <Accordion sx={{ mb: 5 }}>
-                        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                            <Typography variant="h6">Find Student / Therapist</Typography>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                            <TextField
-                                label="Search by name / specialization"
-                                fullWidth
-                            />
-                            <Box mt={2}>
-                                <List>
-                                    <ListItem
-                                        onClick={() => navigate('/admin-dashboard')}
-                                        sx={{
-                                            border: '1px solid #ccc',
-                                            borderRadius: 2,
-                                            mb: 1,
-                                            transition: 'background-color 0.3s',
-                                            '&:hover': { backgroundColor: 'action.hover',
-                                            },
-                                            '&:focus': {
-                                                backgroundColor: 'primary.main',
-                                                color: 'white',
-                                            }
-                                        }}
-                                    >
-                                        <ListItemText
-                                            primary="Mark Kuzo"
-                                            secondary="Role: Student"
-                                        />
-                                    </ListItem>
-                                </List>
-                            </Box>
                         </AccordionDetails>
                     </Accordion>
                 </Box>

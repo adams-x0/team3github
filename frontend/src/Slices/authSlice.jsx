@@ -155,6 +155,21 @@ export const getAppointmentsByStudentId = createAsyncThunk(
   }
 );
 
+// Async thunk to fetch all appointments for admin view
+export const fetchAllAppointmentsByAdmin = createAsyncThunk(
+  'auth/fetchAllAppointmentsByAdmin',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/getAppointmentsByAdmin`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching admin appointments:', error);
+      return rejectWithValue(error.response?.data?.error || 'Failed to fetch admin appointments');
+    }
+  }
+);
+
+
 export const fetchSessionDuration = createAsyncThunk(
   'auth/fetchSessionDuration',
   async (userId, { rejectWithValue }) => {
@@ -225,6 +240,7 @@ const initialState = {
   loading: false,
   error: null,
   registrationError: null,
+  adminAppointmentError: null,
 
   cancellationStatus: null,
   availabilityLoading: false,
@@ -237,6 +253,7 @@ const initialState = {
   guardianRelationship: [],
   studentRelationship: [],
   relationshipStatus: 'idle',
+  adminAppointments: [],
 };
 
 // Auth slice
@@ -310,7 +327,7 @@ const authSlice = createSlice({
       })
       // registerUser success
       .addCase(registerUser.fulfilled, (state, action) => {
-        if(state.user?.role !== 'guardian') {
+        if (state.user?.role !== 'guardian') {
           state.user = action.payload;
           localStorage.setItem('user', JSON.stringify(action.payload));
         }
@@ -402,7 +419,7 @@ const authSlice = createSlice({
       })
       .addCase(getAppointmentsByStudentId.rejected, (state, action) => {
         state.loading = false;
-        state.error= action.payload;
+        state.error = action.payload;
       })
       .addCase(getAppointmentsByUserId.pending, (state) => {
         state.loading = true;
@@ -493,7 +510,19 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-  },
+      .addCase(fetchAllAppointmentsByAdmin.pending, (state) => {
+        state.loading = true;
+        state.adminAppointmentError = null;
+      })
+      .addCase(fetchAllAppointmentsByAdmin.fulfilled, (state, action) => {
+        state.loading = false;
+        state.adminAppointments = action.payload;
+      })
+      .addCase(fetchAllAppointmentsByAdmin.rejected, (state, action) => {
+        state.loading = false;
+        state.adminAppointmentError = action.payload;
+      })
+  },  
 });
 
 // Export actions and reducer

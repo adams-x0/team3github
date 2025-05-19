@@ -598,6 +598,59 @@ def get_appointments_by_student(student_id):
     except Exception as e:
         print(f"[✖] Error fetching appointments for student {student_id}: {e}")
         return jsonify({'error': 'Failed to fetch appointments'}), 500
+    
+@app.route('/getAppointmentsByAdmin', methods=['GET'])
+def get_appointments_by_admin():
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
+
+        cursor.execute("""
+            SELECT
+                a.date,
+                a.time,
+                a.status,
+                a.location,
+                u1.first_name AS student_first_name,
+                u1.last_name AS student_last_name,
+                u2.first_name AS therapist_first_name,
+                u2.last_name AS therapist_last_name,
+                t.specialization
+            FROM Appointments a
+            JOIN Students s ON a.student_id = s.student_id
+            JOIN Users u1 ON s.user_id = u1.user_id
+            JOIN Therapists t ON a.therapist_id = t.therapist_id
+            JOIN Users u2 ON t.user_id = u2.user_id
+            ORDER BY a.date, a.time
+        """)
+
+        results = cursor.fetchall()
+        appointments = []
+
+        for row in results:
+            formatted_time = (
+                row['time'].strftime('%H:%M') if hasattr(row['time'], 'strftime') else str(row['time'])
+            )
+
+            appointments.append({
+                "student": f"{row['student_first_name']} {row['student_last_name']}",
+                "therapist": f"{row['therapist_first_name']} {row['therapist_last_name']}",
+                "specialization": row['specialization'],
+                "date": row['date'].strftime('%Y-%m-%d'),
+                "time": formatted_time,
+                "status": row['status'],
+                "location": row['location']
+            })
+        cursor.close()
+        connection.close()
+
+        return jsonify(appointments), 200
+
+    except Exception as e:
+        print(f"[✖] Error fetching appointments for admin: {e}")
+        return jsonify({'error': 'Failed to fetch admin appointments'}), 500
+
+
 
 @app.route('/getSessionDuration/<int:user_id>', methods=['GET'])
 def get_session_duration(user_id):
