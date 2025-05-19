@@ -329,53 +329,15 @@ const TherapistDashboard = () => {
                                             color: 'white',
                                         }
                                     }}
-                                    secondaryAction={
-                                        <Button variant="outlined" color="primary">View Notes</Button>
-                                    }
                                 >
                                     <ListItemText
-                                        primary="Martin Johnson"
-                                        secondary= "Last session: August 15, 2023 - 10:00 PM"
+                                        primary="No Sessions Found"
                                     />
                                 </ListItem>
                             </List>
                         </AccordionDetails>
                     </Accordion>
-                    {/* Find Student */}
-                    <Accordion sx={{ mb: 5 }}>
-                        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                            <Typography variant="h6">Find Student</Typography>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                            <TextField
-                                label="Search by name"
-                                fullWidth
-                            />
-                            <Box mt={2}>
-                                <List>
-                                    <ListItem
-                                        onClick={() => navigate('/therapist-dashboard')}
-                                        sx={{
-                                            border: '1px solid #ccc',
-                                            borderRadius: 2,
-                                            mb: 1,
-                                            transition: 'background-color 0.3s',
-                                            '&:hover': { backgroundColor: 'action.hover',
-                                            },
-                                            '&:focus': {
-                                                backgroundColor: 'primary.main',
-                                                color: 'white',
-                                            }
-                                        }}
-                                    >
-                                        <ListItemText
-                                            primary="Mark Kuzo"
-                                        />
-                                    </ListItem>
-                                </List>
-                            </Box>
-                        </AccordionDetails>
-                    </Accordion>
+
                 </Box>
                 <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)}>
                     <DialogTitle>Delete Availability</DialogTitle>
