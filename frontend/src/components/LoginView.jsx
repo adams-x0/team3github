@@ -52,7 +52,7 @@ const handleNext = async (e) => {
 
   if (newLogin.email && newLogin.password) {
     try {
-        const user = await dispatch(loginUser({ ...newLogin, isAdmin: true })).unwrap();
+        await dispatch(loginUser({ ...newLogin, isAdmin: true })).unwrap();
     }
     catch (error) {
       console.error('Login failed:', error);
