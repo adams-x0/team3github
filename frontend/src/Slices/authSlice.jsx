@@ -224,6 +224,8 @@ const initialState = {
   sessionDuration: null,
   loading: false,
   error: null,
+  registrationError: null,
+
   cancellationStatus: null,
   availabilityLoading: false,
   acceptStatus: 'idle',
@@ -304,7 +306,7 @@ const authSlice = createSlice({
       // registerUser pending
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
-        state.error = null;
+        state.registrationError = null;
       })
       // registerUser success
       .addCase(registerUser.fulfilled, (state, action) => {
@@ -314,12 +316,12 @@ const authSlice = createSlice({
         }
         state.defaultAvailability = null;
         state.loading = false;
-        state.error = null;
+        state.registrationError = null;
       })
       // registerUser error
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.registrationError = action.payload;
 
         if (typeof action.payload === 'string') {
           alert(`Registration failed: ${action.payload}`);
