@@ -288,7 +288,11 @@ def add_user():
             })
 
         return jsonify({"user": user_response}), 201
-
+    
+    except mysql.connector.Error as err:
+        if err.errno == 1062:
+            return jsonify({"error": "Email already exists"}), 400
+        return jsonify({"error": str(err)}), 500
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500

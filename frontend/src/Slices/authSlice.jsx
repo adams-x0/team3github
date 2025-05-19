@@ -320,7 +320,12 @@ const authSlice = createSlice({
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-        alert('Unsuccessful Registration !');
+
+        if (typeof action.payload === 'string') {
+          alert(`Registration failed: ${action.payload}`);
+        } else {
+          alert('Unsuccessful Registration !');
+        }
       })
       //Update default availability Success
       .addCase(updateDefaultAvailability.fulfilled, (state, action) => {
