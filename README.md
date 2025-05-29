@@ -1,5 +1,5 @@
 <pre>
-1. Introduction
+**1. Introduction**
 Our project is to help make a scheduling system for a school to allow students and parents to
 make appointments with a therapist. The scheduling system allows the children,
 parents/guardians, therapists, and school administration to access the website.
