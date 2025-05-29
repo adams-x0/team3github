@@ -1,4 +1,3 @@
-<pre>
 **1. Introduction**
 Our project is to help make a scheduling system for a school to allow students and parents to
 make appointments with a therapist. The scheduling system allows the children,
@@ -83,4 +82,3 @@ already associated with an existing account
 list of appointments, meaning you can spam cancel until the appointment is removed.
 ○ In the student and parent dashboard, likely caused by the get appointments
 endpoint being called late or the request taking a long time.
-</pre>
